@@ -1,6 +1,6 @@
 Jibbenbar RaspBerry Pi Weather Station.
 
-I'll put together some install instructions. 
+I'll put together some real install instructions. 
 
 https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/2023-12-05-raspios-bookworm-arm64.img.xz
 
