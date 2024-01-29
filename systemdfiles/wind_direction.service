@@ -1,0 +1,14 @@
+[Unit]
+Description=Wind Direction
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/var/www/jibbenbar
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python3 wind_direction.py
+SyslogIdentifier=WIND_Direction
+
+[Install]
+WantedBy=multi-user.target

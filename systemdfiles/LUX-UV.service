@@ -1,0 +1,14 @@
+[Unit]
+Description=LUX and UV Index
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/var/www/jibbenbar
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python3 LUX-UV.py
+SyslogIdentifier=LUX-UV
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=Humidity ATH20 Sensor
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/var/www/jibbenbar
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python3 humidity.py
+SyslogIdentifier=Humidity
+
+[Install]
+WantedBy=multi-user.target

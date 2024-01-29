@@ -1,0 +1,14 @@
+[Unit]
+Description=Temperature in the direct sunlight 
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/var/www/jibbenbar
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python3 temp-in-the-sun.py
+SyslogIdentifier=Sun-Temp
+
+[Install]
+WantedBy=multi-user.target
