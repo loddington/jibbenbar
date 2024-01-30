@@ -10,7 +10,7 @@ port = 1
 address = 0x77 # some BMP280/BME280 use 0x77 others use 0x76 - check with: ic2detect -y 1
 bus = smbus2.SMBus(port)
 
-height_above_sea_level = 812 #meters
+height_above_sea_level = 812 #meters #https://whatismyelevation.com/
 
 bme280.load_calibration_params(bus,address)
 
