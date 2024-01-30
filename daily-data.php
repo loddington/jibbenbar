@@ -2,7 +2,7 @@
 require_once 'db-rw.php'; // Import database credentials
 
 // I started to get nerveous about database load from queries and DB size, so I decided to create a new table (dailydata) that contains some statistics of each days data on 1 line.  
-// This will also help in the future if we want to start purging the older data from weatherdata. I can't see needing more than 60 days of full data. 
+// This will also help in the future if we want to start purging the older data from weatherdata. I can't see needing more than 30 days of full data. 
 
 // Run this at 11.58pm from a cron job. 
 
@@ -24,9 +24,9 @@ list($year, $month, $day, $week) = explode('-', $today);
 
 
 // luxhours - For me, this is all about solar generation, I'd like to put some sort of measurement on it. 
-// So, how many hours of sunlight over X Lux did we have today? Full sunlight is 120,000. Count how many lines where LUX is greater than say 80K? 
+// So, how many hours of sunlight over X Lux did we have today? Full sunlight is 120,000. Count how many lines where LUX is greater than say 50K? 
 
-$luxthreshold = '80000'; // A guestimate at best, needs some calibration. 
+$luxthreshold = '50000'; // A guestimate at best, needs some calibration. 
 $windthreshold = '5'; // 5km/h wind ? I dont know, I dont do wind power generation.
 // I'm using 0.166667 in SUM(CASE WHEN light_meter > $luxthreshold THEN 0.166667 ELSE 0 END) AS luxhours because we take 6 readings an hour.  If you do more (or less) then you will need to change this.
 
