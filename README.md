@@ -18,27 +18,28 @@ https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/
  
  
  
- 
+  
 CREATE TABLE weatherdata (
-epoch INT PRIMARY KEY,
-iso_date bigint,
-hour_min decimal(4,2),
+  epoch INT PRIMARY KEY,
+  iso_date bigint,
+  hour_min decimal(4,2),
   day_of_month tinyint,
   month tinyint,
   year mediumint,
-  bme_temp decimal(5,2),
-  bme_barometric decimal(6,2),
-  bme_humidity decimal(5,2),
+  backup_temp decimal(5,2),
+  barometric_preassure decimal(6,2),
+  humidity decimal(5,2),
   probe_temp decimal(5,2),
   dew_point decimal(4,2),
   rain_count decimal(5,2),
   wind_speed decimal(5,2),
   wind_gusts decimal(5,2),
   wind_direction mediumint,
-  light_meter int,
+  LUX int,
   UV decimal(3,1),
   sun_temp decimal(5,2)
  );
+
 
 
 CREATE TABLE dailydata (
@@ -75,7 +76,8 @@ CREATE TABLE dailydata (
 
 
 
- apt install apache2 php php-json libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api
+
+ apt install apache2 php php-json libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev
  sudo systemctl enable --now apache2
  service mariadb start
  
@@ -83,6 +85,8 @@ CREATE TABLE dailydata (
 
 
 pip3 install RPi.bme280  Adafruit_CircuitPython_AHTx0 --break-system-packages
+pip install mariadb  --break-system-packages
+
 
 
 curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors/bucket_tips
@@ -91,8 +95,10 @@ curl -d '{"id":"bucket_tips"}' -H "Content-Type: application/json" -X PUT http:/
  
  
 
+cp /var/www/jibbenbar/systemdfiles/wind.service /etc/systemd/system/wind.service
 
 systemctl enable rainfall
 systemctl enable flask-data-logger-api
+systemctl enable wind
 
 
