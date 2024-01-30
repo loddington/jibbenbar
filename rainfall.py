@@ -4,8 +4,6 @@ import time
 
 #A scrip to run in the background waiting for the rain bucket to tip and then update the API
 
-
-
 # Set GPIO pin mode to BCM
 GPIO.setmode(GPIO.BCM)
 

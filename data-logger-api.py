@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 
-
-#Simple RestAPI for gathering data - Really needs to have a basic security model added to it. Thats a job for tomorrow.
+#Simple RestAPI for gathering data 
 
 sensors = [
     {
@@ -21,7 +20,7 @@ sensors = [
         'sensor_value': 0
     },
     {
-        'id': 'barometer',
+        'id': 'barometric_pressure',
         'sensor_value': 0
     },
     {

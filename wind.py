@@ -1,6 +1,8 @@
 from gpiozero import Button
 import time, math, statistics, requests
 
+# Credit where credit is due, much of this code was taken straight from https://projects.raspberrypi.org/en/projects/build-your-own-weather-station/
+
 store_speeds = []
 
 wind_count = 0 # Counts how many half-rotations
@@ -19,7 +21,7 @@ def spin():
 
 
 
-# Calculate the wind speed
+# Calculate the wind speed 
 
 def calculate_speed(time_sec):
 	global wind_count
@@ -56,8 +58,8 @@ while True:
         time.sleep(wind_interval)
         final_speed = calculate_speed(wind_interval)
         store_speeds.append(final_speed)
-    wind_gust_value = max(store_speeds)
-    wind_speed_value = statistics.mean(store_speeds)
+    wind_gust_value = round(max(store_speeds), 2)
+    wind_speed_value = round(statistics.mean(store_speeds), 2)
 #    print(wind_speed_value, wind_gust_value)
 
     current_time = time.time()

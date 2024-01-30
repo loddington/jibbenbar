@@ -18,7 +18,7 @@ def rain_gauge_tip(channel):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Open the log file in append mode
-    with open("/tmp/rain_gauge_5_log.txt", "a") as f:
+    with open("/tmp/rain_gauge_log.txt", "a") as f:
         # Write the date and time to the log file
         f.write(f"{current_time} - Rain gauge tip detected\n")
 

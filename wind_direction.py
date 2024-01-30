@@ -7,12 +7,8 @@ import time, math, statistics, requests
 
 check_interval = 1 
 
-
-
 adc = MCP3008(channel=0) #Check which channel you are using. Most people will use 0
 direction_count = 0 
-
-
 
 
 #Recorded voltages
