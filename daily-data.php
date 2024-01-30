@@ -28,7 +28,7 @@ list($year, $month, $day, $week) = explode('-', $today);
 
 $luxthreshold = '80000'; // A guestimate at best, needs some calibration. 
 $windthreshold = '5'; // 5km/h wind ? I dont know, I dont do wind power generation.
-// I'm using 0.25 in SUM(CASE WHEN light_meter > $luxthreshold THEN 0.25 ELSE 0 END) AS luxhours because we take 4 readings an hour.  If you do more (or less) then you will need to change this.
+// I'm using 0.166667 in SUM(CASE WHEN light_meter > $luxthreshold THEN 0.166667 ELSE 0 END) AS luxhours because we take 6 readings an hour.  If you do more (or less) then you will need to change this.
 
 
 
@@ -47,7 +47,7 @@ $windresult = $mysqli->query($EndofDayWindQuery)->fetch_assoc();
 $wind_direction_frequency = $windresult['wind_direction']; 
 
 
-$EndofDayDataQuery = "SELECT MAX(epoch) as epoch, MAX(iso_date) as iso_date, $week as week, day_of_month, month, year, ROUND(AVG(probe_temp) ,2) as avgtemp, $maxtemp as maxtemp, $mintemp as mintemp, ROUND(AVG(dew_point) ,2) as avgdew, SUM(rain_count) as sumrain, ROUND(AVG(bme_barometric), 2) as avgbarometric, ROUND(AVG(bme_humidity), 2) as avghumidity, ROUND(AVG(wind_speed), 2) as avgwind, ROUND(AVG(light_meter), 2) as avglux, ROUND(AVG(UV), 2) as avguv, SUM(CASE WHEN light_meter > $luxthreshold THEN 0.25 ELSE 0 END) AS luxhours, SUM(light_meter) as sumluxday, SUM(UV) as sumuvday, SUM(CASE WHEN wind_speed > $windthreshold THEN 0.25 ELSE 0 END) AS windhours, $maxtemptime as maxtemptime, $mintemptime as mintemptime, $wind_direction_frequency as wind_direction_frequency, ROUND(MAX(wind_gusts), 2) as max_wind_gust, ROUND(MAX(bme_barometric), 2) as maxbarometer, ROUND(MIN(bme_barometric), 2) as minbarometer, MAX(sun_temp) as max_sun_temp, AVG(sun_temp) as avg_sun_temp,  MIN(sun_temp) as min_sun_temp FROM weatherdata WHERE year = $year AND month = $month AND day_of_month = $day";
+$EndofDayDataQuery = "SELECT MAX(epoch) as epoch, MAX(iso_date) as iso_date, $week as week, day_of_month, month, year, ROUND(AVG(probe_temp) ,2) as avgtemp, $maxtemp as maxtemp, $mintemp as mintemp, ROUND(AVG(dew_point) ,2) as avgdew, SUM(rain_count) as sumrain, ROUND(AVG(barometric_pressure), 2) as avgbarometric, ROUND(AVG(humidity), 2) as avghumidity, ROUND(AVG(wind_speed), 2) as avgwind, ROUND(AVG(LUX), 2) as avglux, ROUND(AVG(UV), 2) as avguv, SUM(CASE WHEN LUX > $luxthreshold THEN 0.166667 ELSE 0 END) AS luxhours, SUM(LUX) as sumluxday, SUM(UV) as sumuvday, SUM(CASE WHEN wind_speed > $windthreshold THEN 0.166667 ELSE 0 END) AS windhours, $maxtemptime as maxtemptime, $mintemptime as mintemptime, $wind_direction_frequency as wind_direction_frequency, ROUND(MAX(wind_gusts), 2) as max_wind_gust, ROUND(MAX(barometric_pressure), 2) as maxbarometer, ROUND(MIN(barometric_pressure), 2) as minbarometer, MAX(sun_temp) as max_sun_temp, AVG(sun_temp) as avg_sun_temp,  MIN(sun_temp) as min_sun_temp FROM weatherdata WHERE year = $year AND month = $month AND day_of_month = $day";
 $EndofDayData =  $mysqli->query($EndofDayDataQuery)->fetch_all(MYSQLI_ASSOC);
 
 $insertQuery = "INSERT INTO dailydata (
