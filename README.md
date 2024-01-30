@@ -20,9 +20,9 @@ https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/
  
  
 CREATE TABLE weatherdata (
-  epoch INT PRIMARY KEY,
-  iso_date bigint,
-  hour_min decimal(4,2),
+epoch INT PRIMARY KEY,
+iso_date bigint,
+hour_min decimal(4,2),
   day_of_month tinyint,
   month tinyint,
   year mediumint,
