@@ -1,748 +1,368 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jibbenbar Weather </title>
-    <link rel="stylesheet" href="styles.css">
 
-<!-- I'm not using a CDN as there is very little internet where my station is -->
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/chart.umd.js"></script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Apache2 Debian Default Page: It works</title>
+    <style type="text/css" media="screen">
+  * {
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+  }
 
-</head>
-<body>
-<script>
+  body, html {
+    padding: 3px 3px 3px 3px;
 
-// Function for refreshing the page
-function refreshPage() {
-  location.reload();
-}
+    background-color: #D8DBE2;
 
-// Set a timer to refresh the page every 5 minutes
-const timer = setInterval(refreshPage, 5 * 60 * 1000); // 5 minutes in milliseconds
+    font-family: Verdana, sans-serif;
+    font-size: 11pt;
+    text-align: center;
+  }
 
-// Listen for orientation change event
-window.addEventListener("orientationchange", function () {
-  clearTimeout(timer); // Clear existing timer to prevent double refresh
-  refreshPage(); // Refresh the page immediately
-  // Optionally, set a new timer for future refreshes
-  // timer = setInterval(refreshPage, 5 * 60 * 1000);
-});
+  div.main_page {
+    position: relative;
+    display: table;
 
-// Optional: Add a message to console on refresh
-console.log("Page refreshed!");
+    width: 800px;
 
-</script>
+    margin-bottom: 3px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px 0px 0px 0px;
 
+    border-width: 2px;
+    border-color: #212738;
+    border-style: solid;
 
+    background-color: #FFFFFF;
 
+    text-align: center;
+  }
 
-    <script>
-        $(document).ready(function() {
-            $.getJSON('results.php', function(data) {
-                $.each(data, function(columnName, columnValue) {
-                    $('#' + columnName).text(columnValue);
-                });
-            });
-        });
-    </script>
+  div.page_header {
+    height: 99px;
+    width: 100%;
 
+    background-color: #F5F6F7;
+  }
 
-    <div class="dashboard-container">
+  div.page_header span {
+    margin: 15px 0px 0px 50px;
 
-        <div class="dashboard-header">
-            <h2><span id="PageHeading"></span></h2> 
-             Last Update: <span id="human_time"></span></p>
+    font-size: 180%;
+    font-weight: bold;
+  }
+
+  div.page_header img {
+    margin: 3px 0px 0px 40px;
+
+    border: 0px 0px 0px;
+  }
+
+  div.table_of_contents {
+    clear: left;
+
+    min-width: 200px;
+
+    margin: 3px 3px 3px 3px;
+
+    background-color: #FFFFFF;
+
+    text-align: left;
+  }
+
+  div.table_of_contents_item {
+    clear: left;
+
+    width: 100%;
+
+    margin: 4px 0px 0px 0px;
+
+    background-color: #FFFFFF;
+
+    color: #000000;
+    text-align: left;
+  }
+
+  div.table_of_contents_item a {
+    margin: 6px 0px 0px 6px;
+  }
+
+  div.content_section {
+    margin: 3px 3px 3px 3px;
+
+    background-color: #FFFFFF;
+
+    text-align: left;
+  }
+
+  div.content_section_text {
+    padding: 4px 8px 4px 8px;
+
+    color: #000000;
+    font-size: 100%;
+  }
+
+  div.content_section_text pre {
+    margin: 8px 0px 8px 0px;
+    padding: 8px 8px 8px 8px;
+
+    border-width: 1px;
+    border-style: dotted;
+    border-color: #000000;
+
+    background-color: #F5F6F7;
+
+    font-style: italic;
+  }
+
+  div.content_section_text p {
+    margin-bottom: 6px;
+  }
+
+  div.content_section_text ul, div.content_section_text li {
+    padding: 4px 8px 4px 16px;
+  }
+
+  div.section_header {
+    padding: 3px 6px 3px 6px;
+
+    background-color: #8E9CB2;
+
+    color: #FFFFFF;
+    font-weight: bold;
+    font-size: 112%;
+    text-align: center;
+  }
+
+  div.section_header_red {
+    background-color: #CD214F;
+  }
+
+  div.section_header_grey {
+    background-color: #9F9386;
+  }
+
+  .floating_element {
+    position: relative;
+    float: left;
+  }
+
+  div.table_of_contents_item a,
+  div.content_section_text a {
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  div.table_of_contents_item a:link,
+  div.table_of_contents_item a:visited,
+  div.table_of_contents_item a:active {
+    color: #000000;
+  }
+
+  div.table_of_contents_item a:hover {
+    background-color: #000000;
+
+    color: #FFFFFF;
+  }
+
+  div.content_section_text a:link,
+  div.content_section_text a:visited,
+   div.content_section_text a:active {
+    background-color: #DCDFE6;
+
+    color: #000000;
+  }
+
+  div.content_section_text a:hover {
+    background-color: #000000;
+
+    color: #DCDFE6;
+  }
+
+  div.validator {
+  }
+    </style>
+  </head>
+  <body>
+    <div class="main_page">
+      <div class="page_header floating_element">
+        <img src="/icons/openlogo-75.png" alt="Debian Logo" class="floating_element"/>
+        <span class="floating_element">
+          Apache2 Debian Default Page
+        </span>
+      </div>
+<!--      <div class="table_of_contents floating_element">
+        <div class="section_header section_header_grey">
+          TABLE OF CONTENTS
         </div>
-
-        <div class="dashboard-stats">
-            <!-- Sensor Data Section -->
-            <div class="sensor-data">
-
-                <p>Temperature: <span id="probe_temp"></span>°C</p>
-                <!-- 2nd Temperature: <span id="bme_temp"></span>°C</p> -->
-
-                <p>Feels Like: <span id="FeelsLike"></span>°C</p>
-                <p>Min Temp: <span id="min_temp"></span>°C at <span id="min_temp_time"></span></p>
-                <p>Max Temp: <span id="max_temp"></span>°C at <span id="max_temp_time"></span></p>
-                <p>Average Temp: <span id="avg_temp"></span>°C</p>
-		<p><br></p>
-                <p>Dew Point: <span id="dew_point"></span>°C</p>
-                <p>Humidity: <span id="bme_humidity"></span>%</p>
-
-                <p>Barometer: <span id="bme_barometric"></span>hPa <span id="barometricComparison"></span></p>
-            </div>
-
-            <!-- Calculated Data Section -->
-            <div class="calculated-data">
-	         <p>Rain (last 15 mins): <span id="rain_count"></span>mm</p>
-		 <p>Rain Today:  <span id="sum_rain_today"></span>mm</p>
-		 <p>Rain this Month: <span id="sum_rain_month"></span>mm</p>
-		 <p>Rain last Month: <span id="sum_rain_last_month"></span>mm</p>
-		<p><br></p>
-                <p>Wind Speed: <span id="wind_speed"></span>km/h</p>
-                <p>Wind Direction: <span id="wind_direction"></span> <span id="compass_point"></scan></p>
-                <p>Wind Gusts: <span id="wind_gusts"></span>km/h</p>
-            </div>
-
-            <!-- Additional Data Section -->
-            <div class="additional-data">
-
-                <p>Light Meter: <span id="light_meter"></span>lux</p>
-                <p>UV: <span id="UV"></span></p>
-		<p><br></p>
-                <p>First Light: <span id="civil_twilight_begin"></span></p>
-                <p>Sunrise: <span id="sunrise"></span></p>
-                <p>Sunset: <span id="sunset"></span></p>
-                <p>Last Light:  <span id="civil_twilight_end"></span></p>
-		<p><br>
-		<p>Solar Noon Zenith <span id="zenith"></span> </p>
-		<!-- <p>Dark - Stars visable  <span id="astronomical_twilight_end"></span> </p> --> 
-
-
-		
-            </div>
+        <div class="table_of_contents_item floating_element">
+          <a href="#about">About</a>
         </div>
-
-        <!-- Chart Section -->
-        <div class="chart-container">
-
-
-<p><br><p>
-            <canvas id="graphCanvas"></canvas>
-
-   <script>
-        $(document).ready(function () {
-            showGraph();
-        });
-
-
-
-function showGraph() {
-    $.post('graphing_data_latest.php', function(data) {
-        console.log(data);
-        var hour_min = [];
-        var probe_temp = [];
-        var dew_point = [];
-        var bme_humidity = [];
-        var bme_barometric = [];
-        var rain_count = [];
-
-        // Extract data from 'data' and populate arrays
-        for (var i in data) {
-            hour_min.push(data[i].hour_min);
-            probe_temp.push(data[i].probe_temp);
-            dew_point.push(data[i].dew_point);
-            bme_humidity.push(data[i].bme_humidity);
-            bme_barometric.push(data[i].bme_barometric);
-            rain_count.push(data[i].rain_count);
-        }
-
-        var chartdata = {
-            labels: hour_min,
-            datasets: [
-                {
-                    label: 'Temperature',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                    backgroundColor: '#24bf34',
-                    borderColor: '#24bf34',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: probe_temp,
-                    lineTension: 0.3,
-                    fill: false
-                },
-                {
-                    label: 'Dew Point',
-                    borderWidth: 1,
-                    pointRadius: 2,
-                    yAxisID: 'y1',
-                    backgroundColor: 'yellow',
-                    borderColor: 'orange',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: dew_point,
-                    lineTension: 0.3,
-                    fill: false
-                },
-                {
-                    label: 'Rain',
-                    borderWidth: 1,
-                    yAxisID: 'y2',
-                    backgroundColor: 'lightblue',
-                    borderColor: 'lightblue',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: rain_count,
-                    type: 'bar',
-                },
-                {
-                    label: 'Humidity',
-                    borderWidth: 1,
-                    pointRadius: 2,
-                    yAxisID: 'y3',
-                    hoverBorderColor: 'pink',
-                    backgroundColor: 'pink',
-                    borderColor: '#bf4400',
-                    data: bme_humidity,
-                    lineTension: 0.3,
-                    fill: false
-                },
-                {
-                    label: 'Barometric Pressure',
-                    borderWidth: 1,
-                    pointRadius: 2,
-                    yAxisID: 'y4',
-                    backgroundColor: 'purple',
-                    hoverBorderColor: 'purple',
-                    data: bme_barometric,
-                    lineTension: 0.3,
-                    fill: false,
-                }
-            ]
-        };
-
-        var graphTarget = $('#graphCanvas');
-
-        var lineGraph = new Chart(graphTarget, {
-            type: 'line',
-            data: chartdata,
-            options: {
-
-           responsive: true,
-
-            plugins: {
-               title: {
-                  display: true,
-                  text: 'Latest Data Since Midnight',
-                  color: 'navy',
-                  position: 'top',
-                  align: 'center',
-                  font: {
-                     weight: 'bold'
-                        },
-                  padding: 8,
-                  fullSize: true,
-                    }
-                  },
-
-
-	    aspectRatio: 1,
-                scales: {
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: "Temperature & Dew Point (°C)",
-                            color: "#24bf34",
-                        }
-                    },
-                    y2: {
-                        type: 'linear',
-                        display: false,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: "Rainfall in mm",
-                            color: "lightblue",
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    },
-                    y3: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-			max: 100, 
-                        title: {
-                            display: false,
-                            text: "Humidity %",
-                            color: "pink",
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    },
-                    y4: {
-                        type: 'linear',
-                        display: false,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: "Barometric Pressure",
-                            color: "purple",
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        },
-                    },
-                }
-            }
-        });
-    });
-}
-
-
-</script>
-
-
-
-<p>--<br><p>
-
-            <canvas id="graphCanvas2"></canvas>
-
-<p>--<br><p>
-
-   <script>
-        $(document).ready(function () {
-            showGraph2();
-        });
-
-
-
-
-function showGraph2() {
-    $.post('graphing_data_rain_daily.php', function(data) {
-        console.log(data);
-        var day_of_month = [];
-        var daily_rain = [];
-
-        // Extract data from 'data' and populate arrays
-        for (var i in data) {
-            day_of_month.push(data[i].day_of_month);
-            daily_rain.push(data[i].daily_rain);
-        }
-
-        var chartdata = {
-            labels: day_of_month,
-            datasets: [
-                {
-                    label: 'Rain per day',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                    backgroundColor: 'lightblue',
-                    borderColor: 'lightblue',
-                    hoverBackgroundColor: 'lightblue',
-                    hoverBorderColor: '#666666',
-                    data: daily_rain,
-                    fill: false
-                }
-            ]
-        };
-
-        var graphTarget = $('#graphCanvas2');
-
-        var lineGraph = new Chart(graphTarget, {
-            type: 'bar',
-            data: chartdata,
-            options: {
-
-
-            plugins: {
-               title: {
-                  display: true,
-                  text: 'Rain Per Day Since the Begining of the Month',
-                  color: 'navy',
-                  position: 'top',
-                  align: 'center',
-                  font: {
-                     weight: 'bold'
-                        },
-                  padding: 8,
-                  fullSize: true,
-                    }
-                  },
-                scales: {
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: "mm of rain per day",
-                            color: "#24bf34",
-                        }
-                    }
-                }
-            }
-        });
-    });
-}
-
-
-
-        </script>
-
-
-
-
-            <canvas id="graphCanvas3"></canvas>
-
-<p>--<br><p>
-
-    <script>
-        $(document).ready(function () {
-            showGraph3();
-        });
-
-
-
-
-function showGraph3() {
-    $.post('graphing_data_rain_last_month.php', function(data) {
-        console.log(data);
-        var day_of_month = [];
-        var sum_rain_previous = [];
-
-        // Extract data from 'data' and populate arrays
-        for (var i in data) {
-            day_of_month.push(data[i].day_of_month);
-            sum_rain_previous.push(data[i].sum_rain_previous);
-        }
-
-        var chartdata = {
-            labels: day_of_month,
-            datasets: [
-                {
-                    label: 'Rain per day last month',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                    backgroundColor: 'lightblue',
-                    borderColor: 'lightblue',
-                    hoverBackgroundColor: 'lightblue',
-                    hoverBorderColor: '#666666',
-                    data: sum_rain_previous,
-                    fill: false
-                }
-            ]
-        };
-
-        var graphTarget = $('#graphCanvas3');
-
-        var lineGraph = new Chart(graphTarget, {
-            type: 'bar',
-            data: chartdata,
-            options: {
-
-            plugins: {
-               title: {
-                  display: true,
-                  text: 'Rain Per Day last Month',
-                  color: 'navy',
-                  position: 'top',
-                  align: 'center',
-                  font: {
-                     weight: 'bold'
-                        },
-                  padding: 8,
-                  fullSize: true,
-                    }
-                  },
-        aspectRatio: 1,
-
-                scales: {
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: "mm of rain per day",
-                            color: "#24bf34",
-                        }
-                    }
-                }
-            }
-        });
-    });
-}
-
-
-
-        </script>
-
-
-
-            <canvas id="graphCanvas4"></canvas>
-
-
-
-    <script>
-        $(document).ready(function () {
-            showGraph4();
-        });
-
-
-
-
-function showGraph4() {
-    $.post('graphing_data_rain_last_year.php', function(data) {
-        console.log(data);
-        var month_year = [];
-        var sum_rain_year = [];
-
-        // Extract data from 'data' and populate arrays
-        for (var i in data) {
-            month_year.push(data[i].month_year);
-            sum_rain_year.push(data[i].sum_rain_year);
-        }
-
-        var chartdata = {
-            labels: month_year,
-            datasets: [
-                {
-                    label: 'Rain per month',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                    backgroundColor: 'lightblue',
-                    borderColor: 'lightblue',
-                    hoverBackgroundColor: 'lightblue',
-                    hoverBorderColor: '#666666',
-                    data: sum_rain_year,
-                    fill: false
-                }
-            ]
-        };
-
-        var graphTarget = $('#graphCanvas4');
-
-        var lineGraph = new Chart(graphTarget, {
-            type: 'bar',
-            data: chartdata,
-            options: {
-
-
-            plugins: {
-               title: {
-                  display: true,
-                  text: 'Rain Total by Month',
-                  color: 'navy',
-                  position: 'top',
-                  align: 'center',
-                  font: {
-                     weight: 'bold'
-                        },
-                  padding: 8,
-                  fullSize: true,
-                    }
-                  },
-        aspectRatio: 1,
-
-
-                scales: {
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: "mm of rain per month",
-                            color: "#24bf34",
-                        }
-                    }
-                }
-            }
-        });
-    });
-}
-
-
-
-        </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<p><br><p>
-            <canvas id="graphCanvasTemps"></canvas>
-
-   <script>
-        $(document).ready(function () {
-            showGraphTemps();
-        });
-
-
-
-function showGraphTemps() {
-    $.post('graphing_data_temp_daily.php', function(data) {
-        console.log(data);
-        var day_of_month = [];
-        var daily_avg_temp = [];
-        var daily_max_temp = [];
-        var daily_min_temp = [];
-        var daily_max_sun_temp = [];
-
-        // Extract data from 'data' and populate arrays
-        for (var i in data) {
-            day_of_month.push(data[i].day_of_month);
-            daily_avg_temp.push(data[i].daily_avg_temp);
-            daily_max_temp.push(data[i].daily_max_temp);
-            daily_min_temp.push(data[i].daily_min_temp);
-            daily_max_sun_temp.push(data[i].daily_max_sun_temp);
-        }
-
-        var chartdata = {
-            labels: day_of_month,
-            datasets: [
-                {
-                    label: 'Minimum Temperature',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                    backgroundColor: '#24bf34',
-                    borderColor: '#24bf34',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: daily_min_temp,
-                    fill: true,
-                    lineTension: 0.3,
-                    type: 'line'
-
-                },
-                {
-                    label: 'Avgerage Temperature',
-                    borderWidth: 1,
-                    pointRadius: 2,
-                    yAxisID: 'y1',
-                    backgroundColor: 'yellow',
-                    borderColor: 'orange',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: daily_avg_temp,
-                    lineTension: 0.3,
-                    fill: true
-                },
-
-                {
-                    label: 'Temperature in the Sun',
-                    borderWidth: 1,
-                    pointRadius: 2,
-                    yAxisID: 'y1',
-                    backgroundColor: 'Black',
-                    borderColor: 'Brown',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: daily_max_sun_temp,
-                    lineTension: 0.3,
-                    fill: false
-                },
-
-
-                {
-                    label: 'Maximum Temperature',
-                    borderWidth: 1,
-                    yAxisID: 'y1',
-                    backgroundColor: 'Orange',
-                    borderColor: 'Orange',
-                    hoverBackgroundColor: '#CCCCCC',
-                    hoverBorderColor: '#666666',
-                    data: daily_max_temp,
-                    lineTension: 0.3,
-                    type: 'line',
-                    fill: true
-
-                }
-            ]
-        };
-
-        var graphTarget = $('#graphCanvasTemps');
-
-        var lineGraph = new Chart(graphTarget, {
-            type: 'line',
-            data: chartdata,
-            options: {
-		
-
-  	    plugins: {
-               title: {
-                  display: true,
-                  text: 'Daily Min Max & Avg Temperatures this month',
-                  color: 'navy',
-                  position: 'top',
-                  align: 'center',
-                  font: {
-                     weight: 'bold'
-                        },
-                  padding: 8,
-                  fullSize: true,
-                    }
-                  },
-
-	  aspectRatio: 1,
-
-
-                scales: {
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: "Temperature",
-                            color: "#24bf34",
-                               }
-                        }
-			}
-
-
-
-            }
-        });
-    });
-}
-
-
-</script>
-
-
-
-
-
-
-
-
+        <div class="table_of_contents_item floating_element">
+          <a href="#changes">Changes</a>
+        </div>
+        <div class="table_of_contents_item floating_element">
+          <a href="#scope">Scope</a>
+        </div>
+        <div class="table_of_contents_item floating_element">
+          <a href="#files">Config files</a>
+        </div>
+      </div>
+-->
+      <div class="content_section floating_element">
+
+
+        <div class="section_header section_header_red">
+          <div id="about"></div>
+          It works!
+        </div>
+        <div class="content_section_text">
+          <p>
+                This is the default welcome page used to test the correct 
+                operation of the Apache2 server after installation on Debian systems.
+                If you can read this page, it means that the Apache HTTP server installed at
+                this site is working properly. You should <b>replace this file</b> (located at
+                <tt>/var/www/html/index.html</tt>) before continuing to operate your HTTP server.
+          </p>
+
+
+          <p>
+                If you are a normal user of this web site and don't know what this page is
+                about, this probably means that the site is currently unavailable due to
+                maintenance.
+                If the problem persists, please contact the site's administrator.
+          </p>
 
         </div>
+        <div class="section_header">
+          <div id="changes"></div>
+                Configuration Overview
+        </div>
+        <div class="content_section_text">
+          <p>
+                Debian's Apache2 default configuration is different from the
+                upstream default configuration, and split into several files optimized for
+                interaction with Debian tools. The configuration system is
+                <b>fully documented in
+                /usr/share/doc/apache2/README.Debian.gz</b>. Refer to this for the full
+                documentation. Documentation for the web server itself can be
+                found by accessing the <a href="/manual">manual</a> if the <tt>apache2-doc</tt>
+                package was installed on this server.
 
-        <!-- Image Section -->
-        <div class="dashboard-image">
-            <img src="/webcam/jibbenbar.jpg" alt="Jibbenbar Weather" width="100%">
+          </p>
+          <p>
+                The configuration layout for an Apache2 web server installation on Debian systems is as follows:
+          </p>
+          <pre>
+/etc/apache2/
+|-- apache2.conf
+|       `--  ports.conf
+|-- mods-enabled
+|       |-- *.load
+|       `-- *.conf
+|-- conf-enabled
+|       `-- *.conf
+|-- sites-enabled
+|       `-- *.conf
+          </pre>
+          <ul>
+                        <li>
+                           <tt>apache2.conf</tt> is the main configuration
+                           file. It puts the pieces together by including all remaining configuration
+                           files when starting up the web server.
+                        </li>
+
+                        <li>
+                           <tt>ports.conf</tt> is always included from the
+                           main configuration file. It is used to determine the listening ports for
+                           incoming connections, and this file can be customized anytime.
+                        </li>
+
+                        <li>
+                           Configuration files in the <tt>mods-enabled/</tt>,
+                           <tt>conf-enabled/</tt> and <tt>sites-enabled/</tt> directories contain
+                           particular configuration snippets which manage modules, global configuration
+                           fragments, or virtual host configurations, respectively.
+                        </li>
+
+                        <li>
+                           They are activated by symlinking available
+                           configuration files from their respective
+                           *-available/ counterparts. These should be managed
+                           by using our helpers
+                           <tt>
+                                a2enmod,
+                                a2dismod,
+                           </tt>
+                           <tt>
+                                a2ensite,
+                                a2dissite,
+                            </tt>
+                                and
+                           <tt>
+                                a2enconf,
+                                a2disconf
+                           </tt>. See their respective man pages for detailed information.
+                        </li>
+
+                        <li>
+                           The binary is called apache2. Due to the use of
+                           environment variables, in the default configuration, apache2 needs to be
+                           started/stopped with <tt>/etc/init.d/apache2</tt> or <tt>apache2ctl</tt>.
+                           <b>Calling <tt>/usr/bin/apache2</tt> directly will not work</b> with the
+                           default configuration.
+                        </li>
+          </ul>
         </div>
 
-            <div class="dashboard-image">
+        <div class="section_header">
+            <div id="docroot"></div>
+                Document Roots
+        </div>
+
+        <div class="content_section_text">
+            <p>
+                By default, Debian does not allow access through the web browser to
+                <em>any</em> file apart of those located in <tt>/var/www</tt>,
+                <a href="http://httpd.apache.org/docs/2.4/mod/mod_userdir.html" rel="nofollow">public_html</a>
+                directories (when enabled) and <tt>/usr/share</tt> (for web
+                applications). If your site is using a web document root
+                located elsewhere (such as in <tt>/srv</tt>) you may need to whitelist your
+                document root directory in <tt>/etc/apache2/apache2.conf</tt>.
+            </p>
+            <p>
+                The default Debian document root is <tt>/var/www/html</tt>. You
+                can make your own virtual hosts under /var/www. This is different
+                to previous releases which provides better security out of the box.
+            </p>
+        </div>
+
+        <div class="section_header">
+          <div id="bugs"></div>
+                Reporting Problems
+        </div>
+        <div class="content_section_text">
+          <p>
+                Please use the <tt>reportbug</tt> tool to report bugs in the
+                Apache2 package with Debian. However, check <a
+                href="http://bugs.debian.org/cgi-bin/pkgreport.cgi?ordering=normal;archive=0;src=apache2;repeatmerged=0"
+                rel="nofollow">existing bug reports</a> before reporting a new bug.
+          </p>
+          <p>
+                Please report bugs specific to modules (such as PHP and others)
+                to respective packages, not to the web server itself.
+          </p>
+        </div>
 
 
 
-<p>Hotest Temp in the last 12 months -  <span id="max_temp_year"></span> °C At <span id="max_temp_date"></span></p>
-<p>Coldest Temp in the last 12 months -  <span id="min_temp_year"></span> °C At <span id="min_temp_date"></span></p>
-<p>Wettest Day this year -  <span id="wettest_day_mm"></span>  <span id="wettest_day_date"></span></p>
-<p>
-<!-- <p>Hours of Solar efficiency - </p> -->
 
-<p>Backup Thermometer: <span id="bme_temp"></span>°C</p>  
-<p>Temperature in the Sun: <span id="sun_temp"></span>°C</p>  
-            </div>
-
-
+      </div>
     </div>
-
-
-
-
-
-
-
+    <div class="validator">
+    </div>
+  </body>
+</html>
 

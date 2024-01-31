@@ -12,11 +12,9 @@ if ($mysqli->connect_error) {
 }
 
 
-
 $PageTitle = array(
     'PageHeading' => "$sitename"
 );
-
 
 
 //Date definition of today, year, month and day
@@ -44,7 +42,6 @@ $minMaxTempYearQuery = "SELECT probe_temp AS min_temp_year, (SELECT MAX(probe_te
 $minMaxTempYear = $mysqli->query($minMaxTempYearQuery)->fetch_assoc();
 
 
-
 //Rain count total this month
 $sumRainSinceFirstofMonthQuery = "SELECT SUM(rain_count) as sum_rain_month FROM weatherdata WHERE year = $year AND month = $month";
 $sumRainSinceFirstofMonth = $mysqli->query($sumRainSinceFirstofMonthQuery)->fetch_assoc();
@@ -65,10 +62,10 @@ $latestWindResult =  round(implode(" ",$latestWindResultRaw), 1);
 
 function degreesToCompass($degrees) {
 //    $cardinalDirections = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'];
-    $cardinalDirections = ['North', 'North East', 'East', 'South East', 'South', 'South West', 'West', 'North West'];
+    $cardinalDirections = ['North', 'NNE', 'North East', 'ENE', 'East', 'ESE', 'South East', 'SSE', 'South', 'SSW', 'South West', 'WSW', 'West', 'WNW', 'North West', 'NNW',];
 
-    // Calculate the index based on 45-degree segments because we store the wind direction by degrees 0,45,90,180 etc
-    $index = round($degrees / 45);
+    // Calculate the index based on 22.5 degree segments because we store the wind direction by degrees 0,22.5,45,67.5,90,112.5,180 etc
+    $index = round($degrees / 22.5);
 
     // Return the cardinal direction
     return $cardinalDirections[$index];
@@ -82,29 +79,28 @@ $compassPointArray = array(
 );
 
 
-
 $latestEpochQuery = "SELECT DATE_FORMAT(FROM_UNIXTIME(epoch), '%h:%i%p %D %M %Y') AS human_time FROM weatherdata ORDER BY epoch DESC LIMIT 1";
 $latestEpochResult = $mysqli->query($latestEpochQuery)->fetch_assoc();
 
  
 
-// Fetch the last 6 values of bme_barometric so we can perform some statistical analysys
-$lastBarometricValuesQuery = "SELECT bme_barometric FROM weatherdata WHERE bme_barometric IS NOT NULL ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 6";
+// Fetch the last 6 values of barometric_pressure so we can perform some statistical analysys
+$lastBarometricValuesQuery = "SELECT barometric_pressure FROM weatherdata WHERE barometric_pressure IS NOT NULL ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 6";
 $lastBarometricValuesResult = $mysqli->query($lastBarometricValuesQuery);
 
 // Extract values into an array
 $lastBarometricValues = [];
 while ($row = $lastBarometricValuesResult->fetch_assoc()) {
-    $lastBarometricValues[] = $row['bme_barometric'];
+    $lastBarometricValues[] = $row['barometric_pressure'];
 }
 
 // Calculate the average manually
 $averageBarometric = count($lastBarometricValues) > 0 ? array_sum($lastBarometricValues) / count($lastBarometricValues) : 0;
 
 
-// Get the latest value of bme_barometric
-$latestBarometricQuery = "SELECT bme_barometric FROM weatherdata ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 1";
-$latestBarometricValue = $mysqli->query($latestBarometricQuery)->fetch_assoc()['bme_barometric'];
+// Get the latest value of barometric_pressure
+$latestBarometricQuery = "SELECT barometric_pressure FROM weatherdata ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 1";
+$latestBarometricValue = $mysqli->query($latestBarometricQuery)->fetch_assoc()['barometric_pressure'];
 
 
 //Amount from the average the result has to be before it isn't considered steady.
@@ -139,11 +135,11 @@ $barometricComparisonArray = array(
 
 
 // Get the latest values for temperature, humidity, and wind speed for the Apparent Temperature calculation. Apparent Temperature is often called Feels Like. 
-$latestWeatherQuery = "SELECT probe_temp, bme_humidity, wind_speed FROM weatherdata ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 1";
+$latestWeatherQuery = "SELECT probe_temp, humidity, wind_speed FROM weatherdata ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 1";
 $latestWeatherData = $mysqli->query($latestWeatherQuery)->fetch_assoc();
 
 $latestTemperature = $latestWeatherData['probe_temp'];
-$latestHumidity = $latestWeatherData['bme_humidity'];
+$latestHumidity = $latestWeatherData['humidity'];
 $latestWindSpeed = $latestWeatherData['wind_speed'];
 
 // Calculate the Australian apparent temperature - The Math varies around the world. This one takes wind speed into consideration too.

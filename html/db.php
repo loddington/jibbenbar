@@ -16,8 +16,8 @@ $longitude = 151.647755;
 
 //The database table  definition, just for reference
 
-
-/*
+ /*
+ 
 CREATE TABLE weatherdata (
   epoch INT PRIMARY KEY,
   iso_date bigint,
@@ -25,16 +25,16 @@ CREATE TABLE weatherdata (
   day_of_month tinyint,
   month tinyint,
   year mediumint,
-  bme_temp decimal(5,2),
-  bme_barometric decimal(6,2),
-  bme_humidity decimal(5,2),
+  backup_temp decimal(5,2),
+  barometric_pressure decimal(6,2),
+  humidity decimal(5,2),
   probe_temp decimal(5,2),
   dew_point decimal(4,2),
   rain_count decimal(5,2),
   wind_speed decimal(5,2),
   wind_gusts decimal(5,2),
   wind_direction mediumint,
-  light_meter int,
+  LUX int,
   UV decimal(3,1),
   sun_temp decimal(5,2)
  );
@@ -71,7 +71,5 @@ CREATE TABLE dailydata (
   avg_sun_temp decimal(5,2),
   min_sun_temp decimal(5,2)
  );
-
 */
-
 ?>

@@ -7,7 +7,8 @@ https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/
 
  rasp-config -> interface options -> SPI I2C and 1-Wire
  
- 
+ apt update
+ apt upgrade 
  apt install mariadb-server mycli mariadb-backup
  sudo systemctl enable mariadb
  mariadb
@@ -17,8 +18,8 @@ https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/
  use weather
  
  
+
  
-  
 CREATE TABLE weatherdata (
   epoch INT PRIMARY KEY,
   iso_date bigint,
@@ -27,19 +28,18 @@ CREATE TABLE weatherdata (
   month tinyint,
   year mediumint,
   backup_temp decimal(5,2),
-  barometric_preassure decimal(6,2),
+  barometric_pressure decimal(6,2),
   humidity decimal(5,2),
   probe_temp decimal(5,2),
   dew_point decimal(4,2),
   rain_count decimal(5,2),
   wind_speed decimal(5,2),
   wind_gusts decimal(5,2),
-  wind_direction mediumint,
+  wind_direction decimal(4,1),
   LUX int,
   UV decimal(3,1),
   sun_temp decimal(5,2)
  );
-
 
 
 CREATE TABLE dailydata (
@@ -65,7 +65,7 @@ CREATE TABLE dailydata (
   windhours decimal(5,2),
   maxtemptime decimal(4,2),
   mintemptime decimal(4,2),
-  wind_direction_frequency mediumint,
+  wind_direction_frequency decimal(4,1),
   max_wind decimal(5,2),
   max_barometer decimal(6,2),
   min_barometer decimal(6,2),
@@ -75,9 +75,7 @@ CREATE TABLE dailydata (
  );
 
 
-
-
- apt install apache2 php php-json libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev
+ apt install apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev
  sudo systemctl enable --now apache2
  service mariadb start
  

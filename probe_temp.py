@@ -45,9 +45,9 @@ last_update_time = time.time()
 while True:
     start_time = time.time()
     while time.time() - start_time <= update_interval:
-        time.sleep(30)
+        time.sleep(15)
         temperature = read_temp()
-#        print(temperature)
+        print(temperature)
 
     current_time = time.time()
 

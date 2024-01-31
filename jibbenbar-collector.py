@@ -1,27 +1,27 @@
 import json, requests, mariadb, time, datetime, pytz, configparser
 
-
 config = configparser.ConfigParser()
 config.sections()
 config.read('config.ini')
 
 # Dates and Times.
 # I know you are thinking, why so many time and date formats when it should all just work off epoch?
-# Well it should but I wanted some flexibility because I really wasn't sure what I wanted.
+# Well it should, but I wanted some flexibility because I really wasn't sure what I wanted.
 # I will revisit that later.
 
 #TimeZone
-
 timezone = pytz.timezone((config['timezone']['timezone']))
 now = datetime.datetime.now(timezone)
-iso_date = now.strftime("%Y%m%d%H%M")
-hour_min = now.strftime("%H.%M")
-day_of_month = now.strftime("%d")
-month = now.strftime("%m")
-year =  now.strftime("%Y")
+iso_date = int(now.strftime("%Y%m%d%H%M"))
+hour_min = float(now.strftime("%H.%M"))
+day_of_month = int(now.strftime("%d"))
+month = int(now.strftime("%m"))
+year =  int(now.strftime("%Y"))
 epoch = int(time.time())
 
 # Retrieve the sensor data from the API
+# You can do this by hand by using:
+# curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors
 response = requests.get("http://localhost:5000/sensors")
 response.raise_for_status()  # Error message
 
@@ -35,7 +35,7 @@ for sensor in sensor_data["sensors"]:
 
 bucket_size = float(config['bucket']['bucket'])
 dew_point = round(float(probe_temp) - ((100 - humidity)/5), 2) # Dew Point based on Humidity and temperature
-rain_count = round((bucket_tips * bucket_size), 2)
+rain_count = round((bucket_tips * bucket_size), 2) # Number of times the rain bucket tipped multiplied by the size of the bucket.
 
 
 #print("epoch", epoch)
@@ -58,10 +58,6 @@ rain_count = round((bucket_tips * bucket_size), 2)
 #print("dew_point:", dew_point)
 #print("bucket_size:", bucket_size)
 #print("rain_count:", rain_count)
-
-
-
-
 
 
 # Connect to MariaDB database
@@ -102,3 +98,27 @@ finally:
         rain_api_url = "http://localhost:5000/sensors/bucket_tips"
         rain_reset = requests.put(rain_api_url, json={'sensor_value': 0})
         conn.close()
+
+
+
+#Logging 1 is true 0 is false. Handy for debugging or log shipping to an external DB/WebServer.
+#logging = 1
+#log_directory = /home/jibbenbar/weather_logs
+logging = int((config['logging']['logging']))
+log_directory = (config['logging']['log_directory'])
+
+
+
+AllSensorData = epoch, iso_date, hour_min, day_of_month, month, year, backup_temp, barometric_pressure, humidity, probe_temp, dew_point, rain_count, wind_speed, wind_gusts, wind_direction, LUX, UV, sun_temp;
+
+
+#write output to file for debugging.
+
+if logging == 1:
+     filename = f"{log_directory}/{epoch}.txt"
+     logfile = open(filename, 'w')
+     log_data = str(AllSensorData)
+     logfile.write(log_data)
+     logfile.close()
+#     print (AllSensorData, log_directory)
+

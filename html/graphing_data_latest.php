@@ -17,7 +17,7 @@ list($year, $month, $day) = explode('-', $today);
 
 
 // Environment Sensors since midnight Temperature, Dew Point, Humidty, Preassure 
-$todaysGraphDataQuery = "SELECT probe_temp, bme_barometric, dew_point, rain_count, bme_humidity, hour_min FROM weatherdata WHERE $year AND month = $month AND day_of_month = $day";
+$todaysGraphDataQuery = "SELECT probe_temp, barometric_pressure, dew_point, rain_count, humidity, hour_min FROM weatherdata WHERE $year AND month = $month AND day_of_month = $day";
 $todaysGraphData =  $mysqli->query($todaysGraphDataQuery)->fetch_all(MYSQLI_ASSOC);
 
 
