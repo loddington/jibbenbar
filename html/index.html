@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jibbenbar Weather Station</title>
+    <link rel="stylesheet" href="styles.css">
+
+<!-- I'm not using a CDN as there is very little internet where my station is -->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/chart.umd.js"></script>
+
+</head>
+<body>
+<script>
+
+// Function for refreshing the page
+function refreshPage() {
+  location.reload();
+}
+
+// Set a timer to refresh the page every 5 minutes
+const timer = setInterval(refreshPage, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+// Listen for orientation change event
+window.addEventListener("orientationchange", function () {
+  clearTimeout(timer); // Clear existing timer to prevent double refresh
+  refreshPage(); // Refresh the page immediately
+  // Optionally, set a new timer for future refreshes
+  // timer = setInterval(refreshPage, 5 * 60 * 1000);
+});
+
+// Optional: Add a message to console on refresh
+console.log("Page refreshed!");
+
+</script>
+
+
+
+
+    <script>
+        $(document).ready(function() {
+            $.getJSON('results.php', function(data) {
+                $.each(data, function(columnName, columnValue) {
+                    $('#' + columnName).text(columnValue);
+                });
+            });
+        });
+    </script>
+
+
+    <div class="dashboard-container">
+
+        <div class="dashboard-header">
+            <h2><span id="PageHeading"></span></h2>
+             Last Update: <span id="human_time"></span></p>
+        </div>
+
+        <div class="dashboard-stats">
+            <!-- Sensor Data Section -->
+            <div class="sensor-data">
+
+                <p>Temperature: <span id="probe_temp"></span>°C</p>
+
+                <p>Feels Like: <span id="FeelsLike"></span>°C</p>
+                <p>Min Temp: <span id="min_temp"></span>°C at <span id="min_temp_time"></span></p>
+                <p>Max Temp: <span id="max_temp"></span>°C at <span id="max_temp_time"></span></p>
+                <p>Average Temp: <span id="avg_temp"></span>°C</p>
+                <p><br></p>
+                <p>Dew Point: <span id="dew_point"></span>°C</p>
+                <p>Humidity: <span id="humidity"></span>%</p>
+
+                <p>Barometer: <span id="barometric_pressure"></span>hPa <span id="barometricComparison"></span></p>
+            </div>
+
+            <!-- Calculated Data Section -->
+            <div class="calculated-data">
+                 <p>Rain (last 10 mins): <span id="rain_count"></span>mm</p>
+                 <p>Rain Today:  <span id="sum_rain_today"></span>mm</p>
+                 <p>Rain this Month: <span id="sum_rain_month"></span>mm</p>
+                 <p>Rain last Month: <span id="sum_rain_last_month"></span>mm</p>
+                <p><br></p>
+                <p>Wind Speed: <span id="wind_speed"></span>km/h</p>
+                <p>Wind Direction: <span id="compass_point"></scan></p>
+                <p>Wind Gusts: <span id="wind_gusts"></span>km/h</p>
+            </div>
+
+            <!-- Additional Data Section -->
+            <div class="additional-data">
+
+                <p>Light Meter: <span id="LUX"></span>lux</p>
+                <p>UV: <span id="UV"></span></p>
+                <p><br></p>
+                <p>First Light: <span id="civil_twilight_begin"></span></p>
+                <p>Sunrise: <span id="sunrise"></span></p>
+                <p>Sunset: <span id="sunset"></span></p>
+                <p>Last Light:  <span id="civil_twilight_end"></span></p>
+                <p><br>
+                <p>Solar Noon Zenith <span id="zenith"></span> </p>
+                <!-- <p>Dark - Stars visable  <span id="astronomical_twilight_end"></span> </p> -->
+
+
+
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-container">
+
+
+<p><br><p>
+            <canvas id="graphCanvas"></canvas>
+
+   <script>
+        $(document).ready(function () {
+            showGraph();
+        });
+
+
+
+function showGraph() {
+    $.post('graphing_data_latest.php', function(data) {
+        console.log(data);
+        var hour_min = [];
+        var probe_temp = [];
+        var dew_point = [];
+        var humidity = [];
+        var barometric_pressure = [];
+        var rain_count = [];
+
+        // Extract data from 'data' and populate arrays
+        for (var i in data) {
+            hour_min.push(data[i].hour_min);
+            probe_temp.push(data[i].probe_temp);
+            dew_point.push(data[i].dew_point);
+            humidity.push(data[i].humidity);
+            barometric_pressure.push(data[i].barometric_pressure);
+            rain_count.push(data[i].rain_count);
+        }
+
+        var chartdata = {
+            labels: hour_min,
+            datasets: [
+                {
+                    label: 'Temperature',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    backgroundColor: '#24bf34',
+                    borderColor: '#24bf34',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: probe_temp,
+                    lineTension: 0.3,
+                    fill: false
+                },
+                {
+                    label: 'Dew Point',
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    yAxisID: 'y1',
+                    backgroundColor: 'yellow',
+                    borderColor: 'orange',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: dew_point,
+                    lineTension: 0.3,
+                    fill: false
+                },
+                {
+                    label: 'Rain',
+                    borderWidth: 1,
+                    yAxisID: 'y2',
+                    backgroundColor: 'lightblue',
+                    borderColor: 'lightblue',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: rain_count,
+                    type: 'bar',
+                },
+                {
+                    label: 'Humidity',
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    yAxisID: 'y3',
+                    hoverBorderColor: 'pink',
+                    backgroundColor: 'pink',
+                    borderColor: '#bf4400',
+                    data: humidity,
+                    lineTension: 0.3,
+                    fill: false
+                },
+                {
+                    label: 'Barometric Pressure',
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    yAxisID: 'y4',
+                    backgroundColor: 'purple',
+                    hoverBorderColor: 'purple',
+                    data: barometric_pressure,
+                    lineTension: 0.3,
+                    fill: false,
+                }
+            ]
+        };
+
+        var graphTarget = $('#graphCanvas');
+
+        var lineGraph = new Chart(graphTarget, {
+            type: 'line',
+            data: chartdata,
+            options: {
+
+           responsive: true,
+
+            plugins: {
+               title: {
+                  display: true,
+                  text: 'Latest Data Since Midnight',
+                  color: 'navy',
+                  position: 'top',
+                  align: 'center',
+                  font: {
+                     weight: 'bold'
+                        },
+                  padding: 8,
+                  fullSize: true,
+                    }
+                  },
+
+
+            aspectRatio: 1,
+                scales: {
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: "Temperature & Dew Point (°C)",
+                            color: "#24bf34",
+                        }
+                    },
+                    y2: {
+                        type: 'linear',
+                        display: false,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: "Rainfall in mm",
+                            color: "lightblue",
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                    y3: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        max: 100,
+                        title: {
+                            display: false,
+                            text: "Humidity %",
+                            color: "pink",
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                    y4: {
+                        type: 'linear',
+                        display: false,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: "Barometric Pressure",
+                            color: "purple",
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    },
+                }
+            }
+        });
+    });
+}
+
+
+</script>
+
+
+
+<p>--<br><p>
+
+            <canvas id="graphCanvas2"></canvas>
+
+<p>--<br><p>
+
+   <script>
+        $(document).ready(function () {
+            showGraph2();
+        });
+
+
+
+
+function showGraph2() {
+    $.post('graphing_data_rain_daily.php', function(data) {
+        console.log(data);
+        var day_of_month = [];
+        var daily_rain = [];
+
+        // Extract data from 'data' and populate arrays
+        for (var i in data) {
+            day_of_month.push(data[i].day_of_month);
+            daily_rain.push(data[i].daily_rain);
+        }
+
+        var chartdata = {
+            labels: day_of_month,
+            datasets: [
+                {
+                    label: 'Rain per day',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    backgroundColor: 'lightblue',
+                    borderColor: 'lightblue',
+                    hoverBackgroundColor: 'lightblue',
+                    hoverBorderColor: '#666666',
+                    data: daily_rain,
+                    fill: false
+                }
+            ]
+        };
+
+        var graphTarget = $('#graphCanvas2');
+
+        var lineGraph = new Chart(graphTarget, {
+            type: 'bar',
+            data: chartdata,
+            options: {
+
+
+            plugins: {
+               title: {
+                  display: true,
+                  text: 'Rain Per Day Since the Begining of the Month',
+                  color: 'navy',
+                  position: 'top',
+                  align: 'center',
+                  font: {
+                     weight: 'bold'
+                        },
+                  padding: 8,
+                  fullSize: true,
+                    }
+                  },
+                scales: {
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: "mm of rain per day",
+                            color: "#24bf34",
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
+
+
+        </script>
+
+
+
+
+            <canvas id="graphCanvas3"></canvas>
+
+<p>--<br><p>
+
+    <script>
+        $(document).ready(function () {
+            showGraph3();
+        });
+
+
+
+
+function showGraph3() {
+    $.post('graphing_data_rain_last_month.php', function(data) {
+        console.log(data);
+        var day_of_month = [];
+        var sum_rain_previous = [];
+
+        // Extract data from 'data' and populate arrays
+        for (var i in data) {
+            day_of_month.push(data[i].day_of_month);
+            sum_rain_previous.push(data[i].sum_rain_previous);
+        }
+
+        var chartdata = {
+            labels: day_of_month,
+            datasets: [
+                {
+                    label: 'Rain per day last month',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    backgroundColor: 'lightblue',
+                    borderColor: 'lightblue',
+                    hoverBackgroundColor: 'lightblue',
+                    hoverBorderColor: '#666666',
+                    data: sum_rain_previous,
+                    fill: false
+                }
+            ]
+        };
+
+        var graphTarget = $('#graphCanvas3');
+
+        var lineGraph = new Chart(graphTarget, {
+            type: 'bar',
+            data: chartdata,
+            options: {
+
+            plugins: {
+               title: {
+                  display: true,
+                  text: 'Rain Per Day last Month',
+                  color: 'navy',
+                  position: 'top',
+                  align: 'center',
+                  font: {
+                     weight: 'bold'
+                        },
+                  padding: 8,
+                  fullSize: true,
+                    }
+                  },
+        aspectRatio: 1,
+
+                scales: {
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: "mm of rain per day",
+                            color: "#24bf34",
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
+
+
+        </script>
+
+
+
+            <canvas id="graphCanvas4"></canvas>
+
+
+
+    <script>
+        $(document).ready(function () {
+            showGraph4();
+        });
+
+
+
+
+function showGraph4() {
+    $.post('graphing_data_rain_last_year.php', function(data) {
+        console.log(data);
+        var month_year = [];
+        var sum_rain_year = [];
+
+        // Extract data from 'data' and populate arrays
+        for (var i in data) {
+            month_year.push(data[i].month_year);
+            sum_rain_year.push(data[i].sum_rain_year);
+        }
+
+        var chartdata = {
+            labels: month_year,
+            datasets: [
+                {
+                    label: 'Rain per month',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    backgroundColor: 'lightblue',
+                    borderColor: 'lightblue',
+                    hoverBackgroundColor: 'lightblue',
+                    hoverBorderColor: '#666666',
+                    data: sum_rain_year,
+                    fill: false
+                }
+            ]
+        };
+
+        var graphTarget = $('#graphCanvas4');
+
+        var lineGraph = new Chart(graphTarget, {
+            type: 'bar',
+            data: chartdata,
+            options: {
+
+
+            plugins: {
+               title: {
+                  display: true,
+                  text: 'Rain Total by Month',
+                  color: 'navy',
+                  position: 'top',
+                  align: 'center',
+                  font: {
+                     weight: 'bold'
+                        },
+                  padding: 8,
+                  fullSize: true,
+                    }
+                  },
+        aspectRatio: 1,
+
+
+                scales: {
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: "mm of rain per month",
+                            color: "#24bf34",
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
+
+
+        </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<p><br><p>
+            <canvas id="graphCanvasTemps"></canvas>
+
+   <script>
+        $(document).ready(function () {
+            showGraphTemps();
+        });
+
+
+
+function showGraphTemps() {
+    $.post('graphing_data_temp_daily.php', function(data) {
+        console.log(data);
+        var day_of_month = [];
+        var daily_avg_temp = [];
+        var daily_max_temp = [];
+        var daily_min_temp = [];
+        var daily_max_sun_temp = [];
+
+        // Extract data from 'data' and populate arrays
+        for (var i in data) {
+            day_of_month.push(data[i].day_of_month);
+            daily_avg_temp.push(data[i].daily_avg_temp);
+            daily_max_temp.push(data[i].daily_max_temp);
+            daily_min_temp.push(data[i].daily_min_temp);
+            daily_max_sun_temp.push(data[i].daily_max_sun_temp);
+        }
+
+        var chartdata = {
+            labels: day_of_month,
+            datasets: [
+                {
+                    label: 'Minimum Temperature',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    backgroundColor: '#24bf34',
+                    borderColor: '#24bf34',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: daily_min_temp,
+                    fill: true,
+                    lineTension: 0.3,
+                    type: 'line'
+
+                },
+                {
+                    label: 'Avgerage Temperature',
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    yAxisID: 'y1',
+                    backgroundColor: 'yellow',
+                    borderColor: 'orange',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: daily_avg_temp,
+                    lineTension: 0.3,
+                    fill: true
+                },
+
+                {
+                    label: 'Temperature in the Sun',
+                    borderWidth: 1,
+                    pointRadius: 2,
+                    yAxisID: 'y1',
+                    backgroundColor: 'Black',
+                    borderColor: 'Brown',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: daily_max_sun_temp,
+                    lineTension: 0.3,
+                    fill: false
+                },
+
+
+                {
+                    label: 'Maximum Temperature',
+                    borderWidth: 1,
+                    yAxisID: 'y1',
+                    backgroundColor: 'Orange',
+                    borderColor: 'Orange',
+                    hoverBackgroundColor: '#CCCCCC',
+                    hoverBorderColor: '#666666',
+                    data: daily_max_temp,
+                    lineTension: 0.3,
+                    type: 'line',
+                    fill: true
+
+                }
+            ]
+        };
+
+        var graphTarget = $('#graphCanvasTemps');
+
+        var lineGraph = new Chart(graphTarget, {
+            type: 'line',
+            data: chartdata,
+            options: {
+
+
+            plugins: {
+               title: {
+                  display: true,
+                  text: 'Daily Min Max & Avg Temperatures this month',
+                  color: 'navy',
+                  position: 'top',
+                  align: 'center',
+                  font: {
+                     weight: 'bold'
+                        },
+                  padding: 8,
+                  fullSize: true,
+                    }
+                  },
+
+          aspectRatio: 1,
+
+
+                scales: {
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: "Temperature",
+                            color: "#24bf34",
+                               }
+                        }
+                        }
+
+
+
+            }
+        });
+    });
+}
+
+
+</script>
+
+
+
+
+
+
+
+
+
+        </div>
+
+        <!-- Image Section -->
+        <div class="dashboard-image">
+            <img src="/webcam/jibbenbar.jpg" alt="jibbenbar Weather" width="100%">
+        </div>
+
+            <div class="dashboard-image">
+
+
+
+<p>Hotest Temp in the last 12 months -  <span id="max_temp_year"></span> °C At <span id="max_temp_date"></span></p>
+<p>Coldest Temp in the last 12 months -  <span id="min_temp_year"></span> °C At <span id="min_temp_date"></span></p>
+<p>Wettest Day this year -  <span id="wettest_day_mm"></span>  <span id="wettest_day_date"></span></p>
+<p>
+<!-- <p>Hours of Solar efficiency - </p> -->
+
+<p>Backup Thermometer: <span id="backup_temp"></span>°C</p>
+<p>Temperature in the Sun: <span id="sun_temp"></span>°C</p>
+            </div>
+
+
+    </div>
+

@@ -18,6 +18,7 @@ $PageTitle = array(
 
 
 //Date definition of today, year, month and day
+date_default_timezone_set($station_timezone);
 $today =  date('Y-m-d', time());
 list($year, $month, $day) = explode('-', $today);
 
@@ -79,8 +80,34 @@ $compassPointArray = array(
 );
 
 
-$latestEpochQuery = "SELECT DATE_FORMAT(FROM_UNIXTIME(epoch), '%h:%i%p %D %M %Y') AS human_time FROM weatherdata ORDER BY epoch DESC LIMIT 1";
-$latestEpochResult = $mysqli->query($latestEpochQuery)->fetch_assoc();
+
+
+// This requires the database to have timezonedata - I'll just do it by hand instead.
+//$latestEpochQuery = "SELECT DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(epoch), 'UTC', 'Australia/Brisbane'), '%h:%i%p %D %M %Y') AS human_time FROM weatherdata ORDER BY epoch DESC LIMIT 1";
+//$latestEpochResult = $mysqli->query($latestEpochQuery)->fetch_assoc();
+
+
+// Convert Epoch to human readable time. include time zone.
+$EpochQuery = "SELECT epoch FROM weatherdata ORDER BY epoch DESC LIMIT 1";
+$EpochResultRaw = $mysqli->query($EpochQuery)->fetch_assoc();
+$EpochResult = round(implode(" ",$EpochResultRaw), 1);
+
+$epoch = $EpochResult;
+
+// Create a DateTime object with the given epoch timestamp in UTC timezone
+$dateTime = new DateTime("@$epoch");
+$dateTime->setTimezone(new DateTimeZone($station_timezone));
+
+// Format the datetime object into the desired format
+$dateString = $dateTime->format('h:iA jS F Y');
+
+//echo $dateString;
+
+$latestEpochResult = array(
+    'human_time' => "$dateString"
+);
+
+
 
  
 

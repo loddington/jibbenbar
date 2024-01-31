@@ -57,27 +57,27 @@ BODY {
     <p>Year: <span id="year"></span></p>
 </td>
 <td>
-    <p>Temperature: <span id="bme_temp"></span>°C</p>
+    <p>Temperature: <span id="backup_temp"></span>°C</p>
     <p>Probe Temperature: <span id="probe_temp"></span>°C</p>
     <p>Feels Like: <span id="FeelsLike"></span>°C</p>
  <p>Minimum Temperature Today: <span id="min_temp"></span>°C at <span id="min_temp_time"></span></p>
  <p>Maximum Temperature Today: <span id="max_temp"></span>°C at  <span id="max_temp_time"></span></p></p>
  <p>Average Temperature Today: <span id="avg_temp"></span>°C</p>
 
-    <p>Barometric Pressure: <span id="bme_barometric"></span>hPa</p>
-    <p>Humidity: <span id="bme_humidity"></span>%</p>
+    <p>Barometric Pressure: <span id="barometric_pressure"></span>hPa</p>
+    <p>Humidity: <span id="humidity"></span>%</p>
     <p>Dew Point: <span id="dew_point"></span>°C</p>
     <p>Wind Speed: <span id="wind_speed"></span>km/h</p>
     <p>Wind Direction: <span id="wind_direction"></span>  <span id="compass_point"></p>
     <p>Wind Gusts: <span id="wind_gusts"></span>km/h</p>
 </td>
 <td>
-    <p>Light Meter: <span id="light_meter"></span>lux</p>
+    <p>Light Meter: <span id="LUX"></span>lux</p>
     <p>UV: <span id="UV"></span></p>
     <p>Sunrise: <span id="sunrise"></span></p>
     <p>Sunset: <span id="sunset"></span></p>
     <p>Barometric Preassure Direction: <span id="barometricComparison"></span></p>
-    <p>Rain Count (last 15 mins): <span id="rain_count"></span>mm</p>
+    <p>Rain Count (last 10 mins): <span id="rain_count"></span>mm</p>
     <p>Rain Today:  <span id="sum_rain_today"></span>mm</p>
  <p>Rain this Month: <span id="sum_rain_month"></span>mm</p>
  <p>Rain last Month: <span id="sum_rain_last_month"></span>mm</p>
@@ -124,8 +124,8 @@ function showGraph() {
         var hour_min = [];
         var probe_temp = [];
         var dew_point = [];
-        var bme_humidity = [];
-        var bme_barometric = [];
+        var humidity = [];
+        var barometric_pressure = [];
         var rain_count = [];
 
         // Extract data from 'data' and populate arrays
@@ -133,8 +133,8 @@ function showGraph() {
             hour_min.push(data[i].hour_min);
             probe_temp.push(data[i].probe_temp);
             dew_point.push(data[i].dew_point);
-            bme_humidity.push(data[i].bme_humidity);
-            bme_barometric.push(data[i].bme_barometric);
+            humidity.push(data[i].humidity);
+            barometric_pressure.push(data[i].barometric_pressure);
             rain_count.push(data[i].rain_count);
         }
 
@@ -185,7 +185,7 @@ function showGraph() {
                     hoverBorderColor: 'pink',
                     backgroundColor: 'pink',
                     borderColor: '#bf4400',
-                    data: bme_humidity,
+                    data: humidity,
                     lineTension: 0.3,
                     fill: false
                 },
@@ -196,7 +196,7 @@ function showGraph() {
                     yAxisID: 'y4',
                     backgroundColor: 'purple',
                     hoverBorderColor: 'purple',
-                    data: bme_barometric,
+                    data: barometric_pressure,
                     lineTension: 0.3,
                     fill: false,
                 }

@@ -14,6 +14,7 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
+date_default_timezone_set($station_timezone);
 
 $today =  date('Y-m-d', time());
 list($year, $month, $day) = explode('-', $today);

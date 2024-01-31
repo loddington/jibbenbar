@@ -4,8 +4,13 @@ $dbName = "weather";
 $dbUser = "frontend";
 $dbPass = "YourReadOnlyPasswordHere";
 
+
+
 //Set to your local time zone - Nothing to do with the DB connection, but helpful!
-date_default_timezone_set('Australia/Brisbane');
+//date_default_timezone_set('Australia/Brisbane');
+$station_timezone = ('Australia/Brisbane');
+
+
 
 //Site Name 
 $sitename = "Jibbenbar Weather";
@@ -71,5 +76,6 @@ CREATE TABLE dailydata (
   avg_sun_temp decimal(5,2),
   min_sun_temp decimal(5,2)
  );
+
 */
 ?>
