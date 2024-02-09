@@ -8,7 +8,7 @@ body {
     max-width: 800px;
     margin: 20px auto;
     background-color: #f5f5f5;
-    padding: 10px;
+    padding: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -30,7 +30,7 @@ body {
 }
 
 .sensor-data {
-    width: 30%;
+    width: 32%;
     margin-bottom: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
@@ -38,16 +38,15 @@ body {
 
 
 .calculated-data {
-    width: 30%;
+    width: 32%;
     margin-bottom: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;
 }
 
 
-
 .additional-data {
-    width: 30%;
+    width: 32%;
     margin-bottom: 20px;
     border: 1px solid #ddd;
     border-radius: 5px;

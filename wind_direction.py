@@ -12,7 +12,7 @@ direction_count = 0
 
 
 #Recorded voltages
-volts = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 1.2, 1.4, 1.8, 2.0, 2.2, 2.5, 2.7, 2.8, 2.9]
+volts = [0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 1.2, 1.4, 1.8, 2.0, 2.2, 2.3, 2.5, 2.7, 2.8, 2.9]
 
 #Map voltages to compass points
 
@@ -29,6 +29,7 @@ dict[1.4] = 22.5  #NNE
 dict[1.8] = 180 #South
 dict[2.0] = 202.5 #SSW
 dict[2.2] = 135 #SE
+dict[2.3] = 135 #SE
 dict[2.5] = 157.5 #SSE
 dict[2.7] = 90  #East
 dict[2.8] = 67.5  #ENE

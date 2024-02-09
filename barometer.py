@@ -1,5 +1,5 @@
 #The ATH20 sensor I am using also contains a BMP280 on 0x77. The ATH20 provides Humidity and Temperature. The BMP280 provides air pressure and Temperature.
-#The ATH20 sensor board was cheaper than a BME280 and appears to be more reliable.  
+#The ATH20 sensor board was cheaper than a BME280 and appears to be just as reliable.  
 #Note the difference between a BMP280 and a BME280 is the BME280 records Humidty too. I seem to keep ordering BME280s and BMP280's turn up. 
 #I'm not going to record the temperature to the API, but it is used in the adjusted pressure measurement and handy to use it to correlate the temperatures from the DS18B20 Probe and the ATH20.
 

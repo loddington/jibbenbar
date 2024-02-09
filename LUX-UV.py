@@ -43,6 +43,7 @@ while True:
         try:
             response = requests.put(LUX_url, json={'sensor_value': LUX})
             response.raise_for_status()
+            time.sleep(0.1)
             response = requests.put(UV_url, json={'sensor_value': UV})
             response.raise_for_status()
 #            print("Data sent successfully")

@@ -49,7 +49,7 @@ $TemperatureQuery = "
         SELECT *
         FROM dailydata
         ORDER BY year DESC, month DESC, day_of_month DESC
-        LIMIT 30
+        LIMIT 14
     ) AS recent_data
     ORDER BY year ASC, month ASC, day_of_month ASC
 ";

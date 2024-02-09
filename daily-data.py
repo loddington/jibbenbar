@@ -1,9 +1,14 @@
 import mariadb, configparser
-from datetime import datetime
+from datetime import datetime, timedelta
 
 config = configparser.ConfigParser()
 config.sections()
 config.read('config.ini')
+
+# I wanted to keep as little data as possible. So I decided to create a sumarized version of each day as a single line in a new tabel called dailydata.
+# That way we can purge the detailed data in weatherdata after as little as 24 hours. At the moment I am keeping 32 days.
+
+
 
 # Create a database connection
 try:
@@ -64,7 +69,7 @@ wind_direction_frequency = wind_result[0]
 
 # End of Day Data Query
 end_of_day_data_query = f"""
-SELECT MAX(epoch) AS epoch, MAX(iso_date) AS iso_date, {week} AS week, day_of_month, month, year,
+SELECT MAX(epoch) AS epoch, MAX(iso_date) AS iso_date, day_of_month, month, year, {week} AS week,
        ROUND(AVG(probe_temp), 2) AS avgtemp, {maxtemp} AS maxtemp, {mintemp} AS mintemp,
        ROUND(AVG(dew_point), 2) AS avgdew, SUM(rain_count) AS sumrain,
        ROUND(AVG(barometric_pressure), 2) AS avgbarometric, ROUND(AVG(humidity), 2) AS avghumidity,
@@ -84,7 +89,7 @@ end_of_day_data = cursor.fetchone()
 # Prepare insert query
 insert_query = """
 INSERT INTO dailydata (
-    epoch, iso_date, week, day_of_month, month, year,
+    epoch, iso_date, day_of_month, month, year, week,
     avgtemp, maxtemp, mintemp, avgdew, sumrain, avgbarometric,
     avghumidity, avgwind, avglux, luxhours, avguv, sumluxday, sumuvday, windhours,
     maxtemptime, mintemptime, wind_direction_frequency, max_wind, max_barometer,
@@ -95,7 +100,76 @@ INSERT INTO dailydata (
 # Execute insert query
 cursor.execute(insert_query, end_of_day_data)
 
+# (1706819402, 202402020630, 5, 2, 2, 2024, Decimal('26.59'), Decimal('27.50'), Decimal('26.06'), Decimal('19.81'), Decimal('3.64'), Decimal('1091.47'), Decimal('66.08'), Decimal('0.00'), Decimal('309.00'), Decimal('0.01'), Decimal('0.000000'), Decimal('12360'), Decimal('0.2'), Decimal('0.000000'), Decimal('6.10'), Decimal('0.00'), '180.0', Decimal('0.48'), Decimal('1092.09'), Decimal('1090.93'), Decimal('26.80'), Decimal('26.088250'), Decimal('25.61'))
+
+
+
+print (end_of_day_data)
+
+
+
+
 # Commit and close connections
 conn.commit()
 cursor.close()
 conn.close()
+
+
+
+
+
+
+# This code will purge data older than X days from weatherdata. Since we sumarize the data fronm weatherdata each day, we shouldnt need more than a couple of days of data.
+
+
+def delete_old_records(do_purge):
+    if not do_purge:
+        print("Purge operation not requested. Skipping deletion of old records.")
+        return
+
+    # Connect to the database
+    try:
+       connection = mariadb.connect(
+       host=(config['databasecredentials']['host']),
+       user=(config['databasecredentials']['user']),
+       password=(config['databasecredentials']['password']),
+       database=(config['databasecredentials']['database'])
+    )
+    except mariadb.Error as e:
+        print(f"Error connecting to MariaDB: {e}")
+        return
+
+    try:
+        with connection.cursor() as cursor:
+            # Calculate the date X days ago - X is defined in config.ini
+            days_ago = datetime.now() - timedelta(days=float((config['purge']['purge_days'])))
+
+            # Convert X days ago to epoch time
+            days_ago_epoch = int(days_ago.timestamp())
+
+            # SQL query to delete records older than X days
+            sql = "DELETE FROM weatherdata WHERE epoch < %s"
+
+            # Execute the SQL query with the parameter
+            cursor.execute(sql, (days_ago_epoch,))
+
+            # Commit the changes to the database
+            connection.commit()
+
+            print("Old records deleted successfully.")
+
+    except mariadb.Error as e:
+        print(f"Error deleting old records: {e}")
+
+    finally:
+        # Close the database connection
+        connection.close()
+
+# Set do_purge to True or False based on your requirement - This is defined in config.ini
+do_purge = (config['purge']['do_purge'])
+
+# Call the function to delete old records if do_purge is True
+delete_old_records(do_purge)
+
+
+

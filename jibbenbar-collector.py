@@ -22,6 +22,7 @@ epoch = int(time.time())
 # Retrieve the sensor data from the API
 # You can do this by hand by using:
 # curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors
+
 response = requests.get("http://localhost:5000/sensors")
 response.raise_for_status()  # Error message
 
@@ -36,6 +37,12 @@ for sensor in sensor_data["sensors"]:
 bucket_size = float(config['bucket']['bucket'])
 dew_point = round(float(probe_temp) - ((100 - humidity)/5), 2) # Dew Point based on Humidity and temperature
 rain_count = round((bucket_tips * bucket_size), 2) # Number of times the rain bucket tipped multiplied by the size of the bucket.
+
+
+# Check if any sensor reading equals -50 as this means we have not started populating the Data aLogegr API yet (or your sensor is broken) 
+if probe_temp == -50 or backup_temp == -50 or barometric_pressure == -50 or humidity == -50 or sun_temp == -50:
+    print("Exiting: One of the sensor readings equals -50.")
+    exit()
 
 
 #print("epoch", epoch)
@@ -58,6 +65,10 @@ rain_count = round((bucket_tips * bucket_size), 2) # Number of times the rain bu
 #print("dew_point:", dew_point)
 #print("bucket_size:", bucket_size)
 #print("rain_count:", rain_count)
+
+
+# Add an IF statement to say if "probe_temp" = -100 then to exit as it means we are in startup mode or the temperature probe is broken. 
+
 
 
 # Connect to MariaDB database

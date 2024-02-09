@@ -45,9 +45,9 @@ last_update_time = time.time()
 while True:
     start_time = time.time()
     while time.time() - start_time <= update_interval:
-        time.sleep(15)
         temperature = read_temp()
         print(temperature)
+        time.sleep(10)
 
     current_time = time.time()
 
@@ -56,10 +56,11 @@ while True:
         try:
             response = requests.put(probe_temp_url, json={'sensor_value': temperature})
             response.raise_for_status()
-#            print("Data sent successfully")
+            print("Data sent successfully")
             last_update_time = current_time  # Update last update time
         except requests.exceptions.RequestException as e:
             print("Error:", e)
+            response = requests.put(probe_temp_url, json={'sensor_value': temperature})
 
 
 

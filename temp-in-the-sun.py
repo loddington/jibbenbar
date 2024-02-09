@@ -32,7 +32,7 @@ last_update_time = time.time()
 while True:
     start_time = time.time()
     while time.time() - start_time <= update_interval:
-        time.sleep(30)
+        time.sleep(20)
         bme280_data = bme280.sample(bus,address)
         sun_ambient_temperature = round(bme280_data.temperature, 2)
         print(sun_ambient_temperature)

@@ -6,7 +6,7 @@ from datetime import datetime
 GPIO.setmode(GPIO.BCM)
 
 # Define GPIO pin 6 as an input
-pin = 6
+pin = 19
 # GPIO.setup(pin, GPIO.IN)
 GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 

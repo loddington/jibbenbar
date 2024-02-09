@@ -71,6 +71,7 @@ while True:
         try:
             response = requests.put(windspeed_api_url, json={'sensor_value': wind_speed_value})
             response.raise_for_status()
+            time.sleep(0.1)
             response = requests.put(windgust_api_url, json={'sensor_value': wind_gust_value})
             response.raise_for_status()
 #            print("Data sent successfully")

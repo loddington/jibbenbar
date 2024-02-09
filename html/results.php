@@ -50,7 +50,9 @@ $sumRainSinceFirstofMonth = $mysqli->query($sumRainSinceFirstofMonthQuery)->fetc
 
 //Last Month total Rain
 $prevMonth = date('Y-m-d 00:00:00', strtotime('first day of last month'));
-$sumRainLastMonthQuery = "SELECT SUM(rain_count) as sum_rain_last_month FROM weatherdata WHERE year = YEAR('$prevMonth') AND month = MONTH('$prevMonth')";
+//$sumRainLastMonthQuery = "SELECT SUM(rain_count) as sum_rain_last_month FROM weatherdata WHERE year = YEAR('$prevMonth') AND month = MONTH('$prevMonth')";
+//$sumRainLastMonth = $mysqli->query($sumRainLastMonthQuery)->fetch_assoc();
+$sumRainLastMonthQuery = "SELECT SUM(sumrain) as sum_rain_last_month FROM dailydata WHERE year = YEAR('$prevMonth') AND month = MONTH('$prevMonth')";
 $sumRainLastMonth = $mysqli->query($sumRainLastMonthQuery)->fetch_assoc();
 
 

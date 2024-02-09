@@ -1,6 +1,13 @@
 from flask import Flask, jsonify, request
 
 #Simple RestAPI for gathering data 
+# Some of the readings start at -50, so if the collector picks them up it knows to stop and wait for the next try.
+# If it really is -50 where you are then you have a lot more to worry about than this script. 
+
+
+# You can see what is in the Data logger by using this command:
+# curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors
+
 
 sensors = [
     {
@@ -9,19 +16,19 @@ sensors = [
     },
     {
         'id': 'probe_temp',
-        'sensor_value': 0
+        'sensor_value': -50
     },
     {
         'id': 'humidity',
-        'sensor_value': 0
+        'sensor_value': -50
     },
     {
         'id': 'backup_temp',
-        'sensor_value': 0
+        'sensor_value': -50
     },
     {
         'id': 'barometric_pressure',
-        'sensor_value': 0
+        'sensor_value': -50
     },
     {
         'id': 'LUX',
@@ -33,7 +40,7 @@ sensors = [
     },
     {
         'id': 'sun_temp',
-        'sensor_value': 0
+        'sensor_value': -50
     },
     {
         'id': 'wind_speed',
