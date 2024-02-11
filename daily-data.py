@@ -6,8 +6,7 @@ config.sections()
 config.read('config.ini')
 
 # I wanted to keep as little data as possible. So I decided to create a sumarized version of each day as a single line in a new tabel called dailydata.
-# That way we can purge the detailed data in weatherdata after as little as 24 hours. At the moment I am keeping 32 days.
-
+# That way we can purge the detailed data in weatherdata after as little as 24 hours. At the moment I am keeping 3 days.
 
 
 # Create a database connection
@@ -34,14 +33,14 @@ week = today.strftime("%W")
 
 # Thresholds for calculations - lux_threshold and wind_threshold are a complete guess and will require some calibration. The idea was to record how many hours a day that we had of good solar and wind power generation. 
 lux_threshold = 50000
-wind_threshold = 5
+wind_threshold = 3
 
 # Min and Max temperatures today and the time they occurred.
 min_max_temp_since_midnight_query = f"""
 SELECT probe_temp AS min_temp,
        (SELECT MAX(probe_temp) FROM weatherdata WHERE year = {year} AND month = {month} AND day_of_month = {day}) AS max_temp,
-       (SELECT hour_min FROM weatherdata WHERE probe_temp = min_temp AND year = {year} AND month = {month} AND day_of_month = {day} LIMIT 1) AS min_temp_time,
-       (SELECT hour_min FROM weatherdata WHERE probe_temp = max_temp AND year = {year} AND month = {month} AND day_of_month = {day} LIMIT 1) AS max_temp_time
+       (SELECT epoch FROM weatherdata WHERE probe_temp = min_temp AND year = {year} AND month = {month} AND day_of_month = {day} LIMIT 1) AS min_temp_time,
+       (SELECT epoch FROM weatherdata WHERE probe_temp = max_temp AND year = {year} AND month = {month} AND day_of_month = {day} LIMIT 1) AS max_temp_time
 FROM weatherdata
 WHERE year = {year} AND month = {month} AND day_of_month = {day}
 GROUP BY probe_temp
@@ -100,10 +99,6 @@ INSERT INTO dailydata (
 # Execute insert query
 cursor.execute(insert_query, end_of_day_data)
 
-# (1706819402, 202402020630, 5, 2, 2, 2024, Decimal('26.59'), Decimal('27.50'), Decimal('26.06'), Decimal('19.81'), Decimal('3.64'), Decimal('1091.47'), Decimal('66.08'), Decimal('0.00'), Decimal('309.00'), Decimal('0.01'), Decimal('0.000000'), Decimal('12360'), Decimal('0.2'), Decimal('0.000000'), Decimal('6.10'), Decimal('0.00'), '180.0', Decimal('0.48'), Decimal('1092.09'), Decimal('1090.93'), Decimal('26.80'), Decimal('26.088250'), Decimal('25.61'))
-
-
-
 print (end_of_day_data)
 
 
@@ -113,10 +108,6 @@ print (end_of_day_data)
 conn.commit()
 cursor.close()
 conn.close()
-
-
-
-
 
 
 # This code will purge data older than X days from weatherdata. Since we sumarize the data fronm weatherdata each day, we shouldnt need more than a couple of days of data.

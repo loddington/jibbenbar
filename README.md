@@ -1,14 +1,12 @@
 Jibbenbar RaspBerry Pi Weather Station.
 
-I'll put together some real install instructions. 
 
 https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/2023-12-05-raspios-bookworm-arm64.img.xz
 
 
  rasp-config -> interface options -> SPI I2C and 1-Wire
  
- apt update
- apt upgrade 
+ 
  apt install mariadb-server mycli mariadb-backup
  sudo systemctl enable mariadb
  mariadb
@@ -18,7 +16,7 @@ https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/
  use weather
  
  
-
+ 
  
 CREATE TABLE weatherdata (
   epoch INT PRIMARY KEY,
@@ -75,14 +73,15 @@ CREATE TABLE dailydata (
  );
 
 
- apt install apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev
+
+ apt install apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev fswebcam
  sudo systemctl enable --now apache2
  service mariadb start
  
  
 
 
-pip3 install RPi.bme280  Adafruit_CircuitPython_AHTx0 --break-system-packages
+pip3 install RPi.bme280  Adafruit_CircuitPython_AHTx0 --break-system-packages adafruit-circuitpython-bme680
 pip install mariadb  --break-system-packages
 
 
@@ -98,5 +97,15 @@ cp /var/www/jibbenbar/systemdfiles/wind.service /etc/systemd/system/wind.service
 systemctl enable rainfall
 systemctl enable flask-data-logger-api
 systemctl enable wind
+
+
+# Cron jobs for jibbenbar user:
+
+0,10,20,30,40,50  * * * * cd /var/www/jibbenbar/; /usr/bin/python /var/www/jibbenbar/jibbenbar-collector.py
+58 23 * * *  cd /var/www/jibbenbar/; /usr/bin/python /var/www/jibbenbar/daily-data.py
+
+1,11,21,31,41,51 * * * * rsync --remove-source-files -zh -e ssh /home/jibbenbar/weather_logs/* jibbenbar@jibbenbar.loddington.com:/home/jibbenbar/weather_logs/
+
+
 
 

@@ -1,52 +1,82 @@
 import RPi.GPIO as GPIO
-import requests
 import time
+import requests
 
-#A scrip to run in the background waiting for the rain bucket to tip and then update the API
+# After getting lots of weird false positives, I moved to checking how long the button / reed switch was activated for. Problem solved!
 
-# Set GPIO pin mode to BCM
-GPIO.setmode(GPIO.BCM)
-
-# Define GPIO pin 6 as an input
-pin = 6
-# GPIO.setup(pin, GPIO.IN)
-GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-# URL to call when bucket is tipped
-#curl -d '{"id":"bucket_tips"}' -H "Content-Type: application/json" -X PUT http://localhost:5000/sensors/bucket_tips/increment
-
-#URL to call to get the values from the flask api data collector
-#curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors/bucket_tips
-
-#URL To call to reset the counter to 0 
-#curl -d '{"id":"bucket_tips","sensor_value":"0"}' -H "Content-Type: application/json" -X PUT http://localhost:5000/sensors/bucket_tips
-
-# URL
+# API URL
 api_url = "http://localhost:5000/sensors/bucket_tips/increment"
 
-# Sensor to hit
-sensor_id = "bucket_tips"
+# You can see what is in the Data logger by using this command:
+# curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors
+
+
+# Set the GPIO mode
+GPIO.setmode(GPIO.BCM)
+
+# Set the GPIO pin for the button
+button_pin = 19
+
+# Setup the button pin as input with pull-up resistor
+GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+# Initialize variables for debounce
+button_pressed_time = None
+debounce_duration = 0.1  # 100 milliseconds
+
+# Function to handle button press
+def button_pressed_callback(channel):
+    global button_pressed_time
+    if GPIO.input(channel) == GPIO.LOW:
+        if button_pressed_time is None:
+            button_pressed_time = time.time()  # Record the time when button is pressed
+    else:
+        if button_pressed_time is not None:
+            end_time = time.time()  # Record the time when button is released
+            duration = end_time - button_pressed_time
+            if duration >= debounce_duration:  # Check if debounce duration has passed
+                print("Button pressed for {:.2f} seconds".format(duration))
+                rain_gauge_tip(channel)
+            button_pressed_time = None  # Reset button_pressed_time
+
+# Add event listener for button press
+GPIO.add_event_detect(button_pin, GPIO.BOTH, callback=button_pressed_callback)
 
 
 # Function to handle rain gauge tip events
 def rain_gauge_tip(channel):
-	try:
-		response = requests.put(api_url)
+    try:
+        response = requests.put(api_url)
 
-		if response.status_code == 200:
-			sensor_data = response.json()
-			print("Sensor value incremented successfully:", sensor_data['sensor'])
-		else:
-			print("Error:", response.text)
+        if response.status_code == 200:
+            sensor_data = response.json()
+            print("Sensor value incremented successfully:", sensor_data['sensor'], time.ctime())
+        else:
+            print("Error:", response.text)
+            sensor_data = response.json() # a quick retry on error
 
-	except requests.exceptions.RequestException as e:
-		print("Error  calling API:", e)
+    except requests.exceptions.RequestException as e:
+        print("Error calling API:", e)
 
 
 
-# Attach an interrupt to GPIO pin 6 and call the rain_gauge_tip function on a rising edge
-GPIO.add_event_detect(pin, GPIO.RISING, callback=rain_gauge_tip, bouncetime=300)
+try:
+    while True:
+        time.sleep(0.1)  # Keep the script running
 
-# Keep the script running indefinitely
-while True:
-    time.sleep(0.5)
+except KeyboardInterrupt:
+    GPIO.cleanup()  # Clean up GPIO on Ctrl+C exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+

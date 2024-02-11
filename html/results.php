@@ -44,8 +44,13 @@ $minMaxTempYear = $mysqli->query($minMaxTempYearQuery)->fetch_assoc();
 
 
 //Rain count total this month
-$sumRainSinceFirstofMonthQuery = "SELECT SUM(rain_count) as sum_rain_month FROM weatherdata WHERE year = $year AND month = $month";
+$sumRainSinceFirstofMonthQuery = "SELECT SUM(sumrain) as sum_rain_month FROM dailydata WHERE year = $year AND month = $month";
 $sumRainSinceFirstofMonth = $mysqli->query($sumRainSinceFirstofMonthQuery)->fetch_assoc();
+
+//Rain Yesterday
+$YesterdayRainQuery = "SELECT sumrain as rain_yesterday from dailydata ORDER BY epoch DESC LIMIT 1";
+$YesterdayRain =  $mysqli->query($YesterdayRainQuery)->fetch_assoc();
+
 
 
 //Last Month total Rain
@@ -80,13 +85,6 @@ $compassPoint = degreesToCompass($latestWindResult);
 $compassPointArray = array(
     'compass_point' => $compassPoint
 );
-
-
-
-
-// This requires the database to have timezonedata - I'll just do it by hand instead.
-//$latestEpochQuery = "SELECT DATE_FORMAT(CONVERT_TZ(FROM_UNIXTIME(epoch), 'UTC', 'Australia/Brisbane'), '%h:%i%p %D %M %Y') AS human_time FROM weatherdata ORDER BY epoch DESC LIMIT 1";
-//$latestEpochResult = $mysqli->query($latestEpochQuery)->fetch_assoc();
 
 
 // Convert Epoch to human readable time. include time zone.
@@ -163,7 +161,7 @@ $barometricComparisonArray = array(
 
 
 
-// Get the latest values for temperature, humidity, and wind speed for the Apparent Temperature calculation. Apparent Temperature is often called Feels Like. 
+// Get the latest values for temperature, humidity, and wind speed for the Apparent Temperature calculation. Apparent Temperature is often called "Feels Like". 
 $latestWeatherQuery = "SELECT probe_temp, humidity, wind_speed FROM weatherdata ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 1";
 $latestWeatherData = $mysqli->query($latestWeatherQuery)->fetch_assoc();
 
@@ -190,6 +188,25 @@ function calculateApparentTemperature($temperature, $humidity, $windSpeed)
 
 $ApparentTemperatureyArray = array(
     'FeelsLike' => "$ApparentTemperature"
+);
+
+
+// Query to find the row with maximum sumrain - Wettest Day of the year.
+$maxsumrainsql = "SELECT epoch, sumrain FROM dailydata WHERE sumrain = (SELECT MAX(sumrain) FROM (SELECT sumrain FROM dailydata ORDER BY epoch DESC LIMIT 365) AS last365)";
+$maxsumrainresult =  $mysqli->query($maxsumrainsql)->fetch_assoc();
+
+$maxsumrain = $maxsumrainresult['sumrain'];
+$maxsumraindate = $maxsumrainresult['epoch'];
+ 
+
+$datetime = new DateTime('@' . $maxsumraindate);
+$datetime->setTimezone(new DateTimeZone($station_timezone));
+$human_readable_date = $datetime->format('jS F Y');
+
+
+$maxsumrainsArray = array(
+    'max_sumrain' => "$maxsumrain",
+    'max_sumrain_date' => $human_readable_date
 );
 
 
@@ -239,7 +256,7 @@ $civil_twilight_begin = array(
 
 // Combine data and output JSON
 
-$combinedData = array_merge($PageTitle,$latestResult, $sumRainSinceMidnight, $sumRainSinceFirstofMonth, $sumRainLastMonth, $minMaxTempSinceMidnight, $sunrise, $sunset, $ApparentTemperatureyArray, $barometricComparisonArray, $compassPointArray, $latestEpochResult, $minMaxTempYear, $zenith, $civil_twilight_end, $astronomical_twilight_begin, $astronomical_twilight_end, $civil_twilight_begin );
+$combinedData = array_merge($PageTitle,$latestResult, $sumRainSinceMidnight, $sumRainSinceFirstofMonth, $sumRainLastMonth, $minMaxTempSinceMidnight, $sunrise, $sunset, $ApparentTemperatureyArray, $barometricComparisonArray, $compassPointArray, $latestEpochResult, $minMaxTempYear, $zenith, $civil_twilight_end, $astronomical_twilight_begin, $astronomical_twilight_end, $civil_twilight_begin, $maxsumrainsArray, $YesterdayRain);
 
 header('Content-Type: application/json');
 echo json_encode($combinedData);
