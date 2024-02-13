@@ -1,6 +1,6 @@
 #Temperature in direct Sunlight.
-#Officially Temperature is recorded in the shade and 1.2m off the ground. But, for a bit of intertest I have mounted a BME280 with an address of IC2 bus address of 0x76 in the same enclosure as the Lux/UV meter. 
-#We wont be using the barometric preasure or humidty here, but they might be handy for calibration.
+# Officially Temperature is recorded in the shade and 1.2m off the ground. But, for a bit of intertest I have mounted a BME280 with an address of IC2 bus address of 0x76 in the same enclosure as the Lux/UV meter. 
+# We wont be using the barometric preasure or humidty here, but they might be handy for calibration.
 
 import bme280, smbus2, time, requests
 from time import sleep

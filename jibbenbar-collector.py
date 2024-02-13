@@ -39,36 +39,10 @@ dew_point = round(float(probe_temp) - ((100 - humidity)/5), 2) # Dew Point based
 rain_count = round((bucket_tips * bucket_size), 2) # Number of times the rain bucket tipped multiplied by the size of the bucket.
 
 
-# Check if any sensor reading equals -50 as this means we have not started populating the Data aLogegr API yet (or your sensor is broken) 
+# Check if any sensor reading equals -50 as this means we have not started populating the Data Logger API yet (or your sensor is broken) 
 if probe_temp == -50 or backup_temp == -50 or barometric_pressure == -50 or humidity == -50 or sun_temp == -50:
     print("Exiting: One of the sensor readings equals -50.")
     exit()
-
-
-#print("epoch", epoch)
-#print("iso_date", iso_date)
-#print("hour_min", hour_min)
-#print("day_of_month", day_of_month)
-#print("month", month)
-#print("year", year)
-#print("bucket_tips:", bucket_tips)
-#print("probe_temp:", probe_temp)
-#print("humidity:", humidity)
-#print("backup_temp:", backup_temp)
-#print("barometric_pressure:", barometric_pressure) 
-#print("LUX:", LUX) 
-#print("UV:", UV) 
-#print("sun_temp:", sun_temp) 
-#print("wind_speed:", wind_speed) 
-#print("wind_gusts:", wind_gusts) 
-#print("wind_direction:", wind_direction) 
-#print("dew_point:", dew_point)
-#print("bucket_size:", bucket_size)
-#print("rain_count:", rain_count)
-
-
-# Add an IF statement to say if "probe_temp" = -100 then to exit as it means we are in startup mode or the temperature probe is broken. 
-
 
 
 # Connect to MariaDB database

@@ -719,16 +719,37 @@ function showGraphTemps() {
 
         <!-- Image Section -->
         <div class="dashboard-image">
-            <img src="/webcam/jibbenbar.jpg" alt="jibbenbar Weather" width="100%">
+    <script>
+        $(document).ready(function() {
+            // Load the PHP script to get the newest image
+            $.ajax({
+                url: 'webcam.php',
+                type: 'GET',
+                success: function(response) {
+                    // Display the newest image received from PHP script
+                    $('#imageContainer').html(response);
+                },
+                error: function() {
+                    // Handle error if PHP script fails to execute
+                    $('#imageContainer').html('Error: Failed to load image.');
+                }
+            });
+        });
+    </script>
+
+    <div id="imageContainer">
+        <!-- Newest image will be displayed here -->
+    </div>
+
         </div>
 
             <div class="dashboard-image">
 
 
 
-<p>Hotest Temp in the last 12 months -  <span id="max_temp_year"></span> °C At <span id="max_temp_date"></span></p>
-<p>Coldest Temp in the last 12 months -  <span id="min_temp_year"></span> °C At <span id="min_temp_date"></span></p>
-<p>Wettest Day in the last 12 months -  <span id="max_sumrain"></span>mm on the  <span id="max_sumrain_date"></span></p>
+<p>Hotest Temp in the last 12 months   <span id="max_temp_year"></span> °C At <span id="max_temp_date"></span></p>
+<p>Coldest Temp in the last 12 months   <span id="min_temp_year"></span> °C At <span id="min_temp_date"></span></p>
+<p>Wettest Day in the last 12 months   <span id="max_sumrain"></span>mm on the  <span id="max_sumrain_date"></span></p>
 <p>
 <!-- <p>Hours of Solar efficiency - </p> -->
 

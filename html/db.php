@@ -15,14 +15,14 @@ $station_timezone = ('Australia/Brisbane');
 //Site Name 
 $sitename = "Jibbenbar Weather";
 
-//Long and Lat for sunrise/sunset 
+//Long and Lat for sunrise/sunset - Get from Google Maps
 $latitude = -28.790403;
 $longitude = 151.647755;
 
 //The database table  definition, just for reference
 
  /*
- 
+
 CREATE TABLE weatherdata (
   epoch INT PRIMARY KEY,
   iso_date bigint,
@@ -38,7 +38,7 @@ CREATE TABLE weatherdata (
   rain_count decimal(5,2),
   wind_speed decimal(5,2),
   wind_gusts decimal(5,2),
-  wind_direction mediumint,
+  wind_direction decimal(4,1),
   LUX int,
   UV decimal(3,1),
   sun_temp decimal(5,2)
@@ -66,9 +66,9 @@ CREATE TABLE dailydata (
   sumluxday int,
   sumuvday decimal(5,2),
   windhours decimal(5,2),
-  maxtemptime decimal(4,2),
-  mintemptime decimal(4,2),
-  wind_direction_frequency mediumint,
+  maxtemptime bigint,
+  mintemptime bigint,
+  wind_direction_frequency decimal(4,1),
   max_wind decimal(5,2),
   max_barometer decimal(6,2),
   min_barometer decimal(6,2),
@@ -76,6 +76,8 @@ CREATE TABLE dailydata (
   avg_sun_temp decimal(5,2),
   min_sun_temp decimal(5,2)
  );
+
+ 
 
 */
 ?>

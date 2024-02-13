@@ -1,5 +1,5 @@
 # DS18B20 Probe 
-#enable 1 Wire in rasp-conf 
+# enable 1 Wire in rasp-conf 
 # I do wonder why I use this probe when the ATH20 has 2 thermometers on it and would probably do. This one does look it will last a long time. 
 
 
@@ -61,12 +61,6 @@ while True:
         except requests.exceptions.RequestException as e:
             print("Error:", e)
             response = requests.put(probe_temp_url, json={'sensor_value': temperature})
-
-
-
-
-
-
 
 
 

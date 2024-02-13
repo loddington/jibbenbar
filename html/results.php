@@ -39,8 +39,32 @@ $minMaxTempSinceMidnight = $mysqli->query($minMaxTempSinceMidnightQuery)->fetch_
 
 
 //Min and Max temperatures this year and the day they occured. When time permits I will rewrite this query for the previous 12 months instead of this year. Its a bit useless in January.
-$minMaxTempYearQuery = "SELECT probe_temp AS min_temp_year, (SELECT MAX(probe_temp) FROM weatherdata WHERE year =$year) AS max_temp_year, (SELECT ISO_DATE FROM weatherdata WHERE probe_temp = min_temp_year AND year = $year LIMIT 1) AS min_temp_date, (SELECT ISO_DATE FROM weatherdata WHERE probe_temp = max_temp_year AND year = $year LIMIT 1) AS max_temp_date FROM weatherdata WHERE year = $year GROUP BY probe_temp LIMIT 1";
-$minMaxTempYear = $mysqli->query($minMaxTempYearQuery)->fetch_assoc();
+$minMaxTempYearQuery = "SELECT mintemp AS min_temp_year, (SELECT MAX(maxtemp) FROM dailydata WHERE year =$year) AS max_temp_year, (SELECT mintemptime FROM dailydata WHERE mintemp = min_temp_year AND year = $year LIMIT 1) AS min_temp_date, (SELECT maxtemptime FROM dailydata WHERE maxtemp = max_temp_year AND year = $year LIMIT 1) AS max_temp_date FROM dailydata WHERE year = $year GROUP BY mintemp LIMIT 1";
+$minMaxTempYearResult = $mysqli->query($minMaxTempYearQuery)->fetch_assoc();
+
+$minTempYear = $minMaxTempYearResult['min_temp_year'];
+$maxTempYear = $minMaxTempYearResult['max_temp_year'];
+$minTempYearDate = $minMaxTempYearResult['min_temp_date'];
+$maxTempYearDate = $minMaxTempYearResult['max_temp_date'];
+
+
+$datetime = new DateTime('@' . $minTempYearDate);
+$datetime->setTimezone(new DateTimeZone($station_timezone));
+$minTempYearDate_human = $datetime->format('g:ia jS M Y');
+
+$datetime = new DateTime('@' . $maxTempYearDate);
+$datetime->setTimezone(new DateTimeZone($station_timezone));
+$maxTempYearDate_human = $datetime->format('g:ia jS M Y');
+
+
+
+$minMaxTempYearArray = array(
+    'max_temp_year' => "$maxTempYear",
+    'max_temp_date' => $maxTempYearDate_human,
+    'min_temp_year' => "$minTempYear",
+    'min_temp_date' => $minTempYearDate_human
+);
+
 
 
 //Rain count total this month
@@ -55,8 +79,6 @@ $YesterdayRain =  $mysqli->query($YesterdayRainQuery)->fetch_assoc();
 
 //Last Month total Rain
 $prevMonth = date('Y-m-d 00:00:00', strtotime('first day of last month'));
-//$sumRainLastMonthQuery = "SELECT SUM(rain_count) as sum_rain_last_month FROM weatherdata WHERE year = YEAR('$prevMonth') AND month = MONTH('$prevMonth')";
-//$sumRainLastMonth = $mysqli->query($sumRainLastMonthQuery)->fetch_assoc();
 $sumRainLastMonthQuery = "SELECT SUM(sumrain) as sum_rain_last_month FROM dailydata WHERE year = YEAR('$prevMonth') AND month = MONTH('$prevMonth')";
 $sumRainLastMonth = $mysqli->query($sumRainLastMonthQuery)->fetch_assoc();
 
@@ -99,7 +121,7 @@ $dateTime = new DateTime("@$epoch");
 $dateTime->setTimezone(new DateTimeZone($station_timezone));
 
 // Format the datetime object into the desired format
-$dateString = $dateTime->format('h:iA jS F Y');
+$dateString = $dateTime->format('g:ia jS F Y');
 
 //echo $dateString;
 
@@ -152,14 +174,6 @@ $barometricComparisonArray = array(
 );
 
 
-// Print debugging information
-//echo "Latest Barometric Value: " . $latestBarometricValue . "<br>";
-//echo "Average Barometric Value: " . $averageBarometric . "<br>";
-//echo "Lower Tolerance: " . $lowerTolerance . "<br>";
-//echo "Upper Tolerance: " . $upperTolerance . "<br>";
-//echo "Barometric Comparison: " . $barometricComparison . "<br>";
-
-
 
 // Get the latest values for temperature, humidity, and wind speed for the Apparent Temperature calculation. Apparent Temperature is often called "Feels Like". 
 $latestWeatherQuery = "SELECT probe_temp, humidity, wind_speed FROM weatherdata ORDER BY year DESC, month DESC, day_of_month DESC, hour_min DESC LIMIT 1";
@@ -210,6 +224,9 @@ $maxsumrainsArray = array(
 );
 
 
+
+
+
 //SunRise and SunSet calcs
 //instead of date_sun_info look at https://github.com/gregseth/suncalc-php to get moon too.
 $date = new DateTime();
@@ -219,33 +236,33 @@ $info = date_sun_info($timestamp, $latitude, $longitude);
 
 
 $sunrise = array(
-   'sunrise' => Date('H:i', $info['sunrise']),
+   'sunrise' => Date('g:ia', $info['sunrise']),
  );
 
 $sunset = array(
-   'sunset' => Date('H:i', $info['sunset']),
+   'sunset' => Date('g:ia', $info['sunset']),
  );
 
 $zenith = array(
-   'zenith' => Date('H:i', $info['transit']),
+   'zenith' => Date('g:ia', $info['transit']),
  );
 
 $civil_twilight_end = array(
-   'civil_twilight_end' => Date('H:i', $info['civil_twilight_end']),
+   'civil_twilight_end' => Date('g:ia', $info['civil_twilight_end']),
  );
 
 
 $astronomical_twilight_begin = array(
-   'astronomical_twilight_begin' => Date('H:i', $info['astronomical_twilight_begin']),
+   'astronomical_twilight_begin' => Date('g:ia', $info['astronomical_twilight_begin']),
  );
 
 $astronomical_twilight_end = array(
-   'astronomical_twilight_end' => Date('H:i', $info['astronomical_twilight_end']),
+   'astronomical_twilight_end' => Date('g:ia', $info['astronomical_twilight_end']),
  );
 
 
 $civil_twilight_begin = array(
-   'civil_twilight_begin' => Date('H:i', $info['civil_twilight_begin']),
+   'civil_twilight_begin' => Date('g:ia', $info['civil_twilight_begin']),
  );
 
 
@@ -253,10 +270,17 @@ $civil_twilight_begin = array(
 // End SunRise and SunSet Calcs
 
 
+$webcam_image_file = "<img src=/webcam/jibbenbar.jpg alt=jibbenbar_Weather width=100%>";
+
+$webcamImageArray = array(
+    'webcam_image' => "$webcam_image_file"
+);
+
+
 
 // Combine data and output JSON
 
-$combinedData = array_merge($PageTitle,$latestResult, $sumRainSinceMidnight, $sumRainSinceFirstofMonth, $sumRainLastMonth, $minMaxTempSinceMidnight, $sunrise, $sunset, $ApparentTemperatureyArray, $barometricComparisonArray, $compassPointArray, $latestEpochResult, $minMaxTempYear, $zenith, $civil_twilight_end, $astronomical_twilight_begin, $astronomical_twilight_end, $civil_twilight_begin, $maxsumrainsArray, $YesterdayRain);
+$combinedData = array_merge($PageTitle, $latestResult, $sumRainSinceMidnight, $sumRainSinceFirstofMonth, $sumRainLastMonth, $minMaxTempSinceMidnight, $sunrise, $sunset, $ApparentTemperatureyArray, $barometricComparisonArray, $compassPointArray, $latestEpochResult, $minMaxTempYearArray, $zenith, $civil_twilight_end, $astronomical_twilight_begin, $astronomical_twilight_end, $civil_twilight_begin, $maxsumrainsArray, $YesterdayRain, $webcamImageArray);
 
 header('Content-Type: application/json');
 echo json_encode($combinedData);

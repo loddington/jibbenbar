@@ -1,15 +1,8 @@
 import time, board, adafruit_ahtx0, requests
 
 # I2C 
-i2c = board.I2C()  #i2cdetect -y 1
+i2c = board.I2C()  # i2cdetect -y 1
 sensor = adafruit_ahtx0.AHTx0(i2c)
-
-#while True:
-#    print("\nTemperature: %0.2f C" % sensor.temperature)
-#    print("Humidity: %0.2f %%" % sensor.relative_humidity)
-#    time.sleep(2)
-
-
 
 
 # API URL - probe_temp API interface to hit

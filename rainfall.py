@@ -2,7 +2,10 @@ import RPi.GPIO as GPIO
 import time
 import requests
 
-# After getting lots of weird false positives, I moved to checking how long the button / reed switch was activated for. Problem solved!
+# After getting lots of weird false posiitves I moved to checking how long the button / reed switch was activated for. Problem solved!
+
+# I am now using a home made tipping bucket sensor rather than the Maplin. https://www.printables.com/model/130513-rain-gauge - It is larger and more robust unit and has a 0.2mm tip rthan than the 0.2794mm of the Maplin.
+
 
 # API URL
 api_url = "http://localhost:5000/sensors/bucket_tips/increment"

@@ -1,13 +1,13 @@
-#MCP3002 is more than enough, you are only going to use 1 channel and it uses less space on the breadboard. Though often just as expensive.
+# MCP3002 is more than enough, you are only going to use 1 channel and it uses less space on the breadboard. Though often just as expensive.
 
-#We are using the Python statistics module to find the most common value (mode) rather than an average. 
+# We are using the Python statistics module to find the most common value (mode) rather than an average. Feel free to argue with me about this, but I think it makes more sense. 
 
 from gpiozero import MCP3008
 import time, math, statistics, requests
 
 check_interval = 1 
 
-adc = MCP3008(channel=0) #Check which channel you are using. Most people will use 0
+adc = MCP3008(channel=0) # Check which channel you are using. Most people will use 0
 direction_count = 0 
 
 
@@ -29,7 +29,7 @@ dict[1.4] = 22.5  #NNE
 dict[1.8] = 180 #South
 dict[2.0] = 202.5 #SSW
 dict[2.2] = 135 #SE
-dict[2.3] = 135 #SE
+dict[2.3] = 135 #SE - Yes a second one. 
 dict[2.5] = 157.5 #SSE
 dict[2.7] = 90  #East
 dict[2.8] = 67.5  #ENE
@@ -73,7 +73,6 @@ while True:
 
 
 
-#Need to map voltages to compass degrees to send to the API.
 
 
 
