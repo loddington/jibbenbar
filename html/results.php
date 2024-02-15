@@ -31,6 +31,7 @@ $latestResult = $mysqli->query($latestResultQuery)->fetch_assoc();
 //Rain Today & Average Temp
 $sumRainSinceMidnightQuery = "SELECT ROUND(AVG(probe_temp) ,1) as avg_temp, SUM(rain_count) as sum_rain_today FROM weatherdata WHERE year = $year AND month = $month AND day_of_month = $day";
 $sumRainSinceMidnight = $mysqli->query($sumRainSinceMidnightQuery)->fetch_assoc();
+$sumRainSinceMidnightResult = $sumRainSinceMidnight['sum_rain_today'];
 
 
 //Min and Max temperatures today and the time they occured.
@@ -68,8 +69,46 @@ $minMaxTempYearArray = array(
 
 
 //Rain count total this month
-$sumRainSinceFirstofMonthQuery = "SELECT SUM(sumrain) as sum_rain_month FROM dailydata WHERE year = $year AND month = $month";
-$sumRainSinceFirstofMonth = $mysqli->query($sumRainSinceFirstofMonthQuery)->fetch_assoc();
+//$sumRainSinceFirstofMonthQuery = "SELECT SUM(sumrain) as sum_rain_month FROM dailydata WHERE year = $year AND month = $month";
+//$sumRainSinceFirstofMonth = $mysqli->query($sumRainSinceFirstofMonthQuery)->fetch_assoc();
+
+
+$query_weatherdata = "SELECT SUM(rain_count) AS total_rain_count FROM weatherdata WHERE month = $month AND year = $year AND day_of_month = $day";
+$query_dailydata = "SELECT SUM(sumrain) AS total_sumrain FROM dailydata WHERE month  = $month AND year = $year";
+$result_weatherdata = $mysqli->query($query_weatherdata);
+$result_dailydata = $mysqli->query($query_dailydata);
+if ($result_weatherdata && $result_dailydata) {
+    // Fetch the results
+    $row_weatherdata = mysqli_fetch_assoc($result_weatherdata);
+    $row_dailydata = mysqli_fetch_assoc($result_dailydata);
+
+    // Get the sum values
+    $total_rain_count = $row_weatherdata['total_rain_count'];
+    $total_sumrain = $row_dailydata['total_sumrain'];
+
+    // Combine the results
+    $combined_sum = $total_rain_count + $total_sumrain;
+
+    // Output the combined sum
+    //echo "Combined Sum: " . $combined_sum;
+
+    $sumRainSinceFirstofMonth = array(
+    'sum_rain_month' => $combined_sum
+    );
+
+} else {
+    // Handle errors for the first of the month.
+
+   $sumRainSinceFirstofMonth = array(
+   'sum_rain_month' => $total_rain_count
+   );
+
+}
+
+
+
+
+
 
 //Rain Yesterday
 $YesterdayRainQuery = "SELECT sumrain as rain_yesterday from dailydata ORDER BY epoch DESC LIMIT 1";

@@ -50,8 +50,8 @@ cursor.execute(min_max_temp_since_midnight_query)
 min_max_temp_since_midnight_result = cursor.fetchone()
 mintemp = min_max_temp_since_midnight_result[0]
 maxtemp = min_max_temp_since_midnight_result[1]
-maxtemptime = min_max_temp_since_midnight_result[2]
-mintemptime = min_max_temp_since_midnight_result[3]
+mintemptime = min_max_temp_since_midnight_result[2]
+maxtemptime = min_max_temp_since_midnight_result[3]
 
 # End of Day Wind Query
 end_of_day_wind_query = f"""
