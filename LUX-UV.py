@@ -17,7 +17,7 @@ UV_url = "http://localhost:5000/sensors/UV"
 update_interval = 60  # 1 minutes in seconds
 
 
-#ltr390.resolution = Resolution.RESOLUTION_18BIT
+ltr390.resolution = Resolution.RESOLUTION_16BIT
 
 #ltr390.uvs is UV
 #ltr390.uvi is UV Index
@@ -33,8 +33,8 @@ while True:
     while time.time() - start_time <= update_interval:
         time.sleep(15)
         LUX = round(ltr390.lux, 1)
-        UV = round (ltr390.uvi, 1)
-#        print(LUX, UV)
+        UV = round (ltr390.uvi * 1.7, 1)
+        print(LUX, UV)
 
     current_time = time.time()
 

@@ -51,11 +51,11 @@ $maxTempYearDate = $minMaxTempYearResult['max_temp_date'];
 
 $datetime = new DateTime('@' . $minTempYearDate);
 $datetime->setTimezone(new DateTimeZone($station_timezone));
-$minTempYearDate_human = $datetime->format('g:ia jS M Y');
+$minTempYearDate_human = $datetime->format('g:ia jS D M Y');
 
 $datetime = new DateTime('@' . $maxTempYearDate);
 $datetime->setTimezone(new DateTimeZone($station_timezone));
-$maxTempYearDate_human = $datetime->format('g:ia jS M Y');
+$maxTempYearDate_human = $datetime->format('g:ia jS D M Y');
 
 
 
@@ -254,7 +254,7 @@ $maxsumraindate = $maxsumrainresult['epoch'];
 
 $datetime = new DateTime('@' . $maxsumraindate);
 $datetime->setTimezone(new DateTimeZone($station_timezone));
-$human_readable_date = $datetime->format('jS F Y');
+$human_readable_date = $datetime->format('jS D F Y');
 
 
 $maxsumrainsArray = array(
@@ -317,9 +317,28 @@ $webcamImageArray = array(
 
 
 
+
+//$FirstEpochQuery = "SELECT epoch FROM dailydata AS firstepoch limit 1";
+$FirstEpochQuery = "SELECT epoch FROM dailydata limit 1";
+$FirstEpochQueryResult =  $mysqli->query($FirstEpochQuery)->fetch_assoc();
+
+$first_epoch = $FirstEpochQueryResult['epoch'];
+
+$datetime = new DateTime('@' . $first_epoch);
+$datetime->setTimezone(new DateTimeZone($station_timezone));
+$human_readable_date = $datetime->format('jS F Y');
+
+
+$FirstEpochQueryArray = array(
+    'first_epoch' => "$human_readable_date"
+);
+
+
+
+
 // Combine data and output JSON
 
-$combinedData = array_merge($PageTitle, $latestResult, $sumRainSinceMidnight, $sumRainSinceFirstofMonth, $sumRainLastMonth, $minMaxTempSinceMidnight, $sunrise, $sunset, $ApparentTemperatureyArray, $barometricComparisonArray, $compassPointArray, $latestEpochResult, $minMaxTempYearArray, $zenith, $civil_twilight_end, $astronomical_twilight_begin, $astronomical_twilight_end, $civil_twilight_begin, $maxsumrainsArray, $YesterdayRain, $webcamImageArray);
+$combinedData = array_merge($PageTitle, $latestResult, $sumRainSinceMidnight, $sumRainSinceFirstofMonth, $sumRainLastMonth, $minMaxTempSinceMidnight, $sunrise, $sunset, $ApparentTemperatureyArray, $barometricComparisonArray, $compassPointArray, $latestEpochResult, $minMaxTempYearArray, $zenith, $civil_twilight_end, $astronomical_twilight_begin, $astronomical_twilight_end, $civil_twilight_begin, $maxsumrainsArray, $YesterdayRain, $webcamImageArray, $FirstEpochQueryArray);
 
 header('Content-Type: application/json');
 echo json_encode($combinedData);

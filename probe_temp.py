@@ -35,7 +35,7 @@ def read_temp():
     if equals_pos != -1:
         temp_string = lines[1][equals_pos+2:]
 #If you need to make a calibration adjustment to the probe you can change 1000 to a different value.
-        temp_c = float(temp_string) / 1000.0
+        temp_c = round(float(temp_string) / 940.0, 2)
         return temp_c
 
 

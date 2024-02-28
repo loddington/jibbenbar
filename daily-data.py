@@ -31,8 +31,11 @@ month = today.month
 day = today.day
 week = today.strftime("%W")
 
-# Thresholds for calculations - lux_threshold and wind_threshold are a complete guess and will require some calibration. The idea was to record how many hours a day that we had of good solar and wind power generation. 
-lux_threshold = 50000
+# Thresholds for calculations - lux_threshold and wind_threshold are a complete guess and will require some calibration. 
+# The idea was to record how many hours a day that we had of good solar and wind power generation. 
+# at 25000 LUX I make 360W of solar power in the morning, so this is the minimum I consider to be good.
+# All very subjective. Solar panel direction and tilt make a big difference.
+lux_threshold = 22000
 wind_threshold = 3
 
 # Min and Max temperatures today and the time they occurred.

@@ -1,0 +1,16 @@
+[Unit]
+Description=RainFall Monitor
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/var/www/jibbenbar
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python3 rainfall-2.py
+StandardOutput=append:/var/log/rainfall-2.log
+StandardError=append:/var/log/rainfall-2.log
+SyslogIdentifier=rainfall-2
+
+[Install]
+WantedBy=multi-user.target

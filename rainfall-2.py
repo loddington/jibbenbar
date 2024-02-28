@@ -8,7 +8,7 @@ import requests
 
 
 # API URL
-api_url = "http://localhost:5000/sensors/bucket_tips/increment"
+api_url = "http://localhost:5001/sensors/bucket_tips_2/increment"
 
 # You can see what is in the Data logger by using this command:
 # curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors
@@ -18,14 +18,14 @@ api_url = "http://localhost:5000/sensors/bucket_tips/increment"
 GPIO.setmode(GPIO.BCM)
 
 # Set the GPIO pin for the button
-button_pin = 16
+button_pin = 13
 
 # Setup the button pin as input with pull-up resistor
 GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Initialize variables for debounce
 button_pressed_time = None
-debounce_duration = 0.1  # 100 milliseconds
+debounce_duration = 0.01  # 50 milliseconds
 max_duration = 3.0 #stuck bucket at half way
 
 # Function to handle button press

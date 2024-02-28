@@ -1,0 +1,16 @@
+[Unit]
+Description=Flask API Data Logger for Jibbenbar Weather 
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/var/www/jibbenbar
+Restart=on-failure
+RestartSec=5s
+ExecStart=/usr/bin/python3 data-logger-api-2.py
+#StandardOutput=append:/var/log/flask-data-logger-api-server.log
+#StandardError=append:/var/log/flask-data-logger-api-server.log
+SyslogIdentifier=data-logger-api-2
+
+[Install]
+WantedBy=multi-user.target

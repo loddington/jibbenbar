@@ -11,50 +11,9 @@ from flask import Flask, jsonify, request
 
 sensors = [
     {
-        'id': 'bucket_tips',
-        'sensor_value': 0
-    },
-    {
-        'id': 'probe_temp',
-        'sensor_value': -50
-    },
-    {
-        'id': 'humidity',
-        'sensor_value': -50
-    },
-    {
-        'id': 'backup_temp',
-        'sensor_value': -50
-    },
-    {
-        'id': 'barometric_pressure',
-        'sensor_value': -50
-    },
-    {
-        'id': 'LUX',
-        'sensor_value': 0
-    },
-    {
-        'id': 'UV',
-        'sensor_value': 0
-    },
-    {
-        'id': 'sun_temp',
-        'sensor_value': -50
-    },
-    {
-        'id': 'wind_speed',
-        'sensor_value': 0
-    },
-    {
-        'id': 'wind_gusts',
-        'sensor_value': 0
-    },
-    {
-        'id': 'wind_direction',
+        'id': 'bucket_tips_2',
         'sensor_value': 0
     }
-
 ]
 
 
@@ -99,8 +58,5 @@ def increment_sensor_value(sensor_id):
     sensor[0]['sensor_value'] = int(sensor[0]['sensor_value']) + 1  
     return jsonify({'sensor': sensor[0]})
 
-
-
-
 if __name__ == '__main__':
-   app.run(debug=False, port=5000)
+    app.run(debug=False, port=5001)
