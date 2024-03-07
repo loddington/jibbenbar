@@ -1,0 +1,14 @@
+[Unit]
+Description=Humidity Barometer Backup Temperature BME680 Sensor
+After=multi-user.target
+
+[Service]
+User=root
+WorkingDirectory=/home/jibbenbar/jibbenbar/
+Restart=on-failure
+RestartSec=5s
+ExecStart=/home/jibbenbar/jibbenbar-python/bin/python humidity-barometer-temperature.py
+SyslogIdentifier=Humidity
+
+[Install]
+WantedBy=multi-user.target
