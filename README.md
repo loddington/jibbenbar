@@ -3,8 +3,8 @@ Jibbenbar RaspBerry Pi Weather Station.
 
 https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/2023-12-05-raspios-bookworm-arm64.img.xz
 
-
- rasp-config -> interface options -> SPI I2C and 1-Wire
+as root
+ rasp-config -> interface options -> SPI, I2C and 1-Wire
  
  
  apt install mariadb-server mycli mariadb-backup
@@ -15,10 +15,7 @@ https://downloads.raspberrypi.com/raspios_arm64/images/raspios_arm64-2023-12-06/
  GRANT SELECT ON weather.* TO 'frontend'@'localhost' IDENTIFIED BY 'YourReadOnlyPasswordHere';
  use weather
  
- 
- 
- 
-CREATE TABLE weatherdata (
+ CREATE TABLE weatherdata (
   epoch INT PRIMARY KEY,
   iso_date bigint,
   hour_min decimal(4,2),
@@ -73,18 +70,28 @@ CREATE TABLE dailydata (
  );
 
 
-
- apt install apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev fswebcam
+ apt install mlocate i2c-tools apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev fswebcam openvpn mariadb-server mycli mariadb-backup
  sudo systemctl enable --now apache2
  service mariadb start
  
  
+ 
+adduser jibbenbar
+sudo usermod -a -G i2c jibbenbar #gives the jibbenbar user access to i2c 
 
 
-pip3 install RPi.bme280  Adafruit_CircuitPython_AHTx0 --break-system-packages adafruit-circuitpython-bme680
-pip install mariadb  --break-system-packages
+mkdir /home/jibbenbar/weather_logs/
+
+jibbenbar/jibbenbar-python
+python3 -m venv /home/jibbenbar/jibbenbar-python/
+/home/jibbenbar/jibbenbar-python/bin/pip3 install RPi.bme280 requests Adafruit_CircuitPython_AHTx0  adafruit-circuitpython-bme680 mariadb  adafruit-circuitpython-ltr390
 
 
+cd /home/jibbenbar/
+
+git clone https://github.com/loddington/jibbenbar
+
+mkdir /home/jibbenbar/weather_logs
 
 curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors/bucket_tips
 curl -d '{"id":"bucket_tips","sensor_value":"0"}' -H "Content-Type: application/json" -X PUT http://localhost:5000/sensors/bucket_tips
@@ -92,7 +99,7 @@ curl -d '{"id":"bucket_tips"}' -H "Content-Type: application/json" -X PUT http:/
  
  
 
-cp /var/www/jibbenbar/systemdfiles/wind.service /etc/systemd/system/wind.service
+cp /home/jibbenbar/jibbenbar/systemdfiles/wind.service /etc/systemd/system/wind.service
 
 systemctl enable rainfall
 systemctl enable flask-data-logger-api
@@ -109,3 +116,22 @@ systemctl enable wind
 
 
 
+
+
+06 * * * * /usr/bin/fswebcam -r 1280x720 -q --title Severn  --scale 640x360 --top-banner  --device /dev/video0 -i 0 --deinterlace /var/www/jibbenbar/html/webcam/severn.jpg
+
+
+
+chown jibbenbar:jibbenbar
+daily-data.py
+import-logs.py 
+jibbenbar-collector.py
+
+
+# Rasp Pi - CPU temp vcgencmd measure_temp
+
+
+ cp -rf /home/jibbenbar/jibbenbar/html/* /var/www/html/
+ 
+ 
+ 
