@@ -87,7 +87,7 @@ if ($result_weatherdata && $result_dailydata) {
     $total_sumrain = $row_dailydata['total_sumrain'];
 
     // Combine the results
-    $combined_sum = $total_rain_count + $total_sumrain;
+    $combined_sum = round(($total_rain_count + $total_sumrain), 2);
 
     // Output the combined sum
     //echo "Combined Sum: " . $combined_sum;
