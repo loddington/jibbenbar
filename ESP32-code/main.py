@@ -15,7 +15,7 @@ WIFI_SSID = "JibbenbarWiFI"
 WIFI_PASSWORD = "YourWiFiPWDHere"
 
 # Define the server IP of the Data Logger API and endpoint
-SERVER_IP = "192.168.1.30"
+SERVER_IP = "192.168.1.30" 
 SERVER_PORT = 5000
 ENDPOINT = "/sensors/bucket_tips/increment"
 
@@ -64,8 +64,8 @@ def main():
     #machine.Pin(27, machine.Pin.IN) # GPIO27 is disabled
     machine.Pin(32, machine.Pin.IN) # GPIO32 is disabled
     machine.Pin(33, machine.Pin.IN) # GPIO33 is disabled
-    #machine.lightsleep()  # Start in light sleep mode
-    print('hi')
+    
+    print('Jibbenbar Weather ESP32 Rain Tipping Bucket')
   
     while True:
 	    # Configure button pin with pull-up and wakeup capability
