@@ -6,21 +6,21 @@ import esp32
 
 machine.freq(80000000)
 
-
 # Define GPIO pin for the button
 BUTTON_PIN = 27
 
 # Define the WiFi credentials
-WIFI_SSID = "JibbenbarWiFI"
-WIFI_PASSWORD = "YourWiFiPWDHere"
+WIFI_SSID = "JibbenbarSSID"
+WIFI_PASSWORD = "YOUR-PW-HERE"
 
 # Define the server IP of the Data Logger API and endpoint
-SERVER_IP = "192.168.1.30" 
+SERVER_IP = "severn-data.loddington.com"
+#SERVER_IP = "192.168.30.116"
 SERVER_PORT = 5000
 ENDPOINT = "/sensors/bucket_tips/increment"
 
 # Define the delay between connection attempts
-RETRY_DELAY = 10
+RETRY_DELAY = 5
 
 # Function to connect to WiFi
 def connect_wifi():
@@ -37,17 +37,33 @@ def connect_wifi():
 def make_request():
     try:
         response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT))
+        #response_2 = urequests.put("http://{}:{}/{}".format(SERVER_IP_2, SERVER_PORT, ENDPOINT))  # Second request
         if response.status_code == 200:
-            print("Request Successful")
+            print("Requests Successful")
             response.close()
             return True
         else:
-            print("Request Failed:", response.status_code)
-            response.close()
-            return False
-    except Exception as e:
-        print("Exception occurred during request:", e)
+            print("Request(s) Failed:")
+            if response.status_code != 200:
+                print("  - Request to SERVER_IP failed with status code:", response.status_code)
+                # Retry the connection to SERVER_IP after a delay
+                print("Retrying connection to SERVER_IP in 5 seconds...")
+                time.sleep(5)
+                response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT))
+                if response.status_code == 200:
+                    print("Retried connection to SERVER_IP successful")
+                else:
+                    print("Retry to SERVER_IP failed, going back to sleep")
+                    return False
+    except OSError as e:
+        if e.errno == 113:
+            print("Connection aborted. Data logger may be unreachable.")
+        else:
+            print("Exception occurred during request:", e)
         return False
+
+
+
 
 # Main loop
 def main():
@@ -64,20 +80,20 @@ def main():
     #machine.Pin(27, machine.Pin.IN) # GPIO27 is disabled
     machine.Pin(32, machine.Pin.IN) # GPIO32 is disabled
     machine.Pin(33, machine.Pin.IN) # GPIO33 is disabled
-    
-    print('Jibbenbar Weather ESP32 Rain Tipping Bucket')
+    #machine.lightsleep()  # Start in light sleep mode
+    print('hi')
   
     while True:
-	    # Configure button pin with pull-up and wakeup capability
+        # Configure button pin with pull-up and wakeup capability
         button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
         esp32.wake_on_ext0(pin=button, level=esp32.WAKEUP_ALL_LOW)
 
-    # Enter light sleep
+        # Enter light sleep
         print("Entering light sleep...")
-        time.sleep_ms(1000)
+        time.sleep_ms(1500)
         machine.lightsleep()
 
-    # Code executed after waking from light sleep (button press)
+        # Code executed after waking from light sleep (button press)
         print("Woke from light sleep! Button pressed.")
         button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
         button_pressed_time = 0
@@ -90,7 +106,7 @@ def main():
                     time.sleep_ms(500)  # Debounce the button
                     connect_wifi()
                     if make_request():
-                        time.sleep_ms(5000)
+                        time.sleep_ms(200)
                         network.WLAN(network.STA_IF).active(False)  # Disable WiFi
                         print("WiFi Disabled going back to sleep")
                         time.sleep_ms(500)
@@ -98,12 +114,8 @@ def main():
                     else:
                         print("Retrying in {} seconds...".format(RETRY_DELAY))
                         time.sleep(RETRY_DELAY)
+                        machine.lightsleep()
                 button_pressed_time = 0
-                
-
 
 if __name__ == "__main__":
     main()
-
-
-
