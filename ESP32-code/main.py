@@ -101,9 +101,10 @@ def main():
         while True:
             if button.value() == 0:  # Button is pressed
                 button_pressed_time += 1
+                print (button_pressed_time)
             else:  # Button released
-                if 100 <= button_pressed_time < 1000:
-                    time.sleep_ms(500)  # Debounce the button
+                if 10 <= button_pressed_time < 2000:
+                    time.sleep_ms(200)  # Debounce the button
                     connect_wifi()
                     if make_request():
                         time.sleep_ms(200)
