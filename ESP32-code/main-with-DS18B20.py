@@ -20,7 +20,7 @@ WIFI_SSID = "Your SSID"
 WIFI_PASSWORD = "YOUR SSID PW"
 
 # Define the server IP of the Data Logger API and endpoint
-SERVER_IP = "severn-data.loddington.com"
+SERVER_IP = "Your-Server-Name-or-IP"
 SERVER_PORT = 5000
 ENDPOINT_BUCKET = "sensors/bucket_tips/increment"
 ENDPOINT_TEMPERATURE = "sensors/sun_temp"
