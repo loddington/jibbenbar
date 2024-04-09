@@ -1,130 +1,114 @@
 import machine
-import network
 import time
-import urequests
-import esp32
-from machine import Pin
-from onewire import OneWire
-from ds18x20 import DS18X20
+import onewire
+import ds18x20
+import network
+import urequests as requests  # MicroPython HTTP library
 
-# Set sleep duration (milliseconds)
-sleep_duration = 60000  # 60 seconds = 60000 milliseconds
+#script for UV and Tempurature - Wont work with tipping bucket as that uses light sleep and I cant get it to place nice with the button press
 
-# Define GPIO pin for the button
-BUTTON_PIN = 27
-# Define GPIO pin for the DS18B20 temperature sensor
-TEMP_SENSOR_PIN = 19
+# WiFi credentials
+WIFI_SSID = "YourSSID"
+WIFI_PASSWORD = "WiFiPW"
 
-# Define the WiFi credentials
-WIFI_SSID = "Your SSID"
-WIFI_PASSWORD = "YOUR SSID PW"
+# API endpoints
+UV_API_ENDPOINT = "http://severn-data.loddington.com:5000/sensors/UV"
+TEMP_API_ENDPOINT = "http://severn-data.loddington.com:5000/sensors/sun_temp"
 
-# Define the server IP of the Data Logger API and endpoint
-SERVER_IP = "Your-Server-Name-or-IP"
-SERVER_PORT = 5000
-ENDPOINT_BUCKET = "sensors/bucket_tips/increment"
-ENDPOINT_TEMPERATURE = "sensors/sun_temp"
+# Define DS18B20 data pin
+DS18B20_PIN = 19  # Updated pin for DS18B20 sensor
 
-# Define the delay between connection attempts
-RETRY_DELAY = 5
+# Define analog pin for GUVA-S12SD sensor
+GUVA_S12SD_PIN = 14  # Updated pin for GUVA-S12SD sensor
 
-# Function to connect to WiFi
-def connect_wifi():
+# Calibration parameters for UV index mapping
+VOLTAGE_MIN = 0.0  # Minimum output voltage
+VOLTAGE_MAX = 3.3  # Maximum output voltage
+UV_INDEX_MIN = 0    # Minimum UV index value
+UV_INDEX_MAX = 12   # Maximum UV index value
+
+# Disable unused pins
+UNUSED_PINS = [3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+
+def connect_to_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
     if not wlan.isconnected():
         print("Connecting to WiFi...")
         wlan.connect(WIFI_SSID, WIFI_PASSWORD)
         while not wlan.isconnected():
-            time.sleep(1)
-    print("WiFi Connected:", wlan.ifconfig())
+            pass
+    print("Connected to WiFi:", wlan.ifconfig())
 
-# Function to make the HTTP request to the Data Logger
-def make_request_bucket():
-    try:
-        response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT_BUCKET))
-        if response.status_code == 200:
-            print("Requests Successful")
-            response.close()
-            return True
-        else:
-            print("Request(s) Failed:")
-            if response.status_code != 200:
-                print("  - Request to SERVER_IP failed with status code:", response.status_code)
-                # Retry the connection to SERVER_IP after a delay
-                print("Retrying connection to SERVER_IP in 5 seconds...")
-                time.sleep(5)
-                response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT_BUCKET))
-                if response.status_code == 200:
-                    print("Retried connection to SERVER_IP successful")
-                else:
-                    print("Retry to SERVER_IP failed, going back to sleep")
-                    return False
-    except OSError as e:
-        if e.errno == 113:
-            print("Connection aborted. Data logger may be unreachable.")
-        else:
-            print("Exception occurred during request:", e)
-        return False
-
-def make_request_temperature(temperature):
-    try:
-        data = {'sensor_value': temperature}
-        headers = {'Content-Type': 'application/json'}
-        response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT_TEMPERATURE), headers=headers, json=data)
-        if response.status_code == 200:
-            print("Temperature Request Successful")
-            response.close()
-            return True
-        else:
-            print("Temperature Request Failed with status code:", response.status_code)
-            return False
-    except OSError as e:
-        print("Exception occurred during temperature request:", e)
-        return False
-
-
-
-# Function to read temperature from DS18B20 sensor
 def read_temperature():
-    dat = Pin(TEMP_SENSOR_PIN)
-    ds_sensor = DS18X20(OneWire(dat))
-    roms = ds_sensor.scan()
-    ds_sensor.convert_temp()
-    time.sleep_ms(750)  # Wait for conversion to finish (750ms for DS18B20)
-    temperature = ds_sensor.read_temp(roms[0])  # Assuming only one sensor connected
+    # Setup DS18B20 sensor
+    ow = onewire.OneWire(machine.Pin(DS18B20_PIN))
+    ds = ds18x20.DS18X20(ow)
+    roms = ds.scan()
+
+    # Read temperature from the first DS18B20 sensor found
+    ds.convert_temp()
+    time.sleep_ms(750)
+    temperature = ds.read_temp(roms[0])
     return temperature
 
-# Main loop
+def read_uv_intensity():
+    # Read analog voltage from GUVA-S12SD sensor
+    adc = machine.ADC(machine.Pin(GUVA_S12SD_PIN))
+    uv_voltage = adc.read() * (3.3 / 4095)  # Convert ADC value to voltage
+    return uv_voltage
+
+def map_voltage_to_uv_index(voltage):
+    # Map the voltage reading to the UV index range
+    uv_index = UV_INDEX_MIN + (voltage - VOLTAGE_MIN) * (UV_INDEX_MAX - UV_INDEX_MIN) / (VOLTAGE_MAX - VOLTAGE_MIN)
+    return uv_index
+
+def send_temperature(temperature):
+    try:
+        print("Sending temperature data to API...")
+        payload = {'sensor_value': temperature}
+        response = requests.put(TEMP_API_ENDPOINT, json=payload)
+        print("Response from temperature server:", response.text)
+        response.close()
+        return response.text  # Return response for further processing
+    except Exception as e:
+        print("Error sending temperature data to API:", e)
+
+def send_uv_index(uv_index):
+    try:
+        print("Sending UV index data to API...")
+        payload = {'sensor_value': uv_index}
+        response = requests.put(UV_API_ENDPOINT, json=payload)
+        print("Response from UV server:", response.text)
+        response.close()
+        return response.text  # Return response for further processing
+    except Exception as e:
+        print("Error sending UV index data to API:", e)
+
+def deep_sleep(seconds):
+    print("Entering deep sleep mode for {} seconds...".format(seconds))
+    for pin in UNUSED_PINS:
+        machine.Pin(pin, machine.Pin.IN)
+    time.sleep_ms(2000)  # 2-second delay before sleeping
+    machine.deepsleep(seconds * 1000)
+
 def main():
-    # Disable unused peripherals and pins to reduce power consumption
-    machine.Pin(4, machine.Pin.IN)  # GPIO4 is disabled
-    # machine.lightsleep()  # Start in light sleep mode
-    print('hi')
+    try:
+        connect_to_wifi()
+        temperature = read_temperature()
+        uv_voltage = read_uv_intensity()
+        uv_index = map_voltage_to_uv_index(uv_voltage)
+        temp_response = send_temperature(temperature)
+        uv_response = send_uv_index(uv_index)
+        # Process responses as needed
+        print("Temperature Response:", temp_response)
+        print("UV Index Response:", uv_response)
+    except Exception as e:
+        print("Error:", e)
+    finally:
+        # Enter deep sleep for 12 seconds for testing
+        deep_sleep(12)
 
-    # Configure button pin with pull-up
-    button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-
-    while True:
-        temperature = read_temperature()  # Read temperature
-        print("DS18B20 Temperature reading is:", temperature)  # Print temperature reading
-        make_request_temperature(temperature)  # Send temperature reading to server
-        
-        time.sleep(0.5) #This is just for debugging. 
-        machine.lightsleep(sleep_duration)  # Sleep 
-
-        # Check for button press after waking up from light sleep
-        if button.value() == 0:  # Button is pressed
-            print("Button pressed!")
-            # Your button handling code here (e.g., connect to WiFi, send data)
-            connect_wifi()
-            if make_request_bucket():
-                time.sleep_ms(200)
-                network.WLAN(network.STA_IF).active(False)  # Disable WiFi
-                print("WiFi Disabled going back to sleep")
-            else:
-                print("Retrying in {} seconds...".format(RETRY_DELAY))
-                time.sleep(RETRY_DELAY)
-
+# Run the main function
 if __name__ == "__main__":
     main()
