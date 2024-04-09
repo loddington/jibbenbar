@@ -3,17 +3,16 @@ import time
 import onewire
 import ds18x20
 import network
-import urequests as requests  # MicroPython HTTP library
-
+import urequests as requests  
 #script for UV and Tempurature - Wont work with tipping bucket as that uses light sleep and I cant get it to place nice with the button press
 
 # WiFi credentials
 WIFI_SSID = "YourSSID"
 WIFI_PASSWORD = "WiFiPW"
 
-# API endpoints
-UV_API_ENDPOINT = "http://severn-data.loddington.com:5000/sensors/UV"
-TEMP_API_ENDPOINT = "http://severn-data.loddington.com:5000/sensors/sun_temp"
+# API endpoints - Change to your endpoints
+UV_API_ENDPOINT = "http://jibbenbar-data.loddington.com:5000/sensors/UV"
+TEMP_API_ENDPOINT = "http://jibbendar-data.loddington.com:5000/sensors/sun_temp"
 
 # Define DS18B20 data pin
 DS18B20_PIN = 19  # Updated pin for DS18B20 sensor
