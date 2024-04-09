@@ -4,90 +4,74 @@ import time
 import urequests
 import esp32
 
-machine.freq(80000000)
-
-# Define GPIO pin for the button
+# Define GPIO pins
 BUTTON_PIN = 27
 
-# Define the WiFi credentials
-WIFI_SSID = "JibbenbarSSID"
-WIFI_PASSWORD = "YOUR-PW-HERE"
+# WiFi credentials
+WIFI_SSID = "Your_SSID"
+WIFI_PASSWORD = "YOUR-WiFi-PW"
 
-# Define the server IP of the Data Logger API and endpoint
-SERVER_IP = "severn-data.loddington.com"
-#SERVER_IP = "192.168.30.116"
+# Server details
+SERVER_IP = "Server address of name"
 SERVER_PORT = 5000
-ENDPOINT = "/sensors/bucket_tips/increment"
+ENDPOINT_BUTTON = "/sensors/bucket_tips/increment"
 
-# Define the delay between connection attempts
+# Retry delay
 RETRY_DELAY = 5
 
-# Function to connect to WiFi
 def connect_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
-    if not wlan.isconnected():
-        print("Connecting to WiFi...")
-        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
-        while not wlan.isconnected():
-            time.sleep(1)
-    print("WiFi Connected:", wlan.ifconfig())
+    start_time = time.ticks_ms()  # Record start time
+    while time.ticks_diff(time.ticks_ms(), start_time) < 30000:  # Timeout after 30 seconds
+        if wlan.isconnected():
+            print("WiFi Connected:", wlan.ifconfig())
+            return
+        if not wlan.isconnected():
+            print("Connecting to WiFi...")
+            try:
+                wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+                time.sleep(1)
+            except OSError as e:
+                if e.args[0] == 118:  # Error code 118 corresponds to "Wifi Internal Error"
+                    print("Error: Wifi Internal Error. Restarting the script...")
+                    machine.reset()
+                else:
+                    print("WiFi connection failed:", e)
+                    return
+    print("WiFi connection timed out. Restarting the script...")
+    machine.reset()
 
-# Function to make the HTTP request to the Data Logger
-def make_request():
+def make_request_button():
     try:
-        response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT))
-        #response_2 = urequests.put("http://{}:{}/{}".format(SERVER_IP_2, SERVER_PORT, ENDPOINT))  # Second request
+        response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT_BUTTON))
         if response.status_code == 200:
-            print("Requests Successful")
-            response.close()
+            print("Request Successful")
             return True
         else:
-            print("Request(s) Failed:")
-            if response.status_code != 200:
-                print("  - Request to SERVER_IP failed with status code:", response.status_code)
-                # Retry the connection to SERVER_IP after a delay
-                print("Retrying connection to SERVER_IP in 5 seconds...")
-                time.sleep(5)
-                response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT))
-                if response.status_code == 200:
-                    print("Retried connection to SERVER_IP successful")
-                else:
-                    print("Retry to SERVER_IP failed, going back to sleep")
-                    return False
+            print("Request Failed with status code:", response.status_code)
+            return False
     except OSError as e:
-        if e.errno == 113:
-            print("Connection aborted. Data logger may be unreachable.")
-        else:
-            print("Exception occurred during request:", e)
-        return False
+        print("Exception occurred during request:", e)
+        print("Restarting the script...")
+        machine.reset()
 
 
+def disable_unused_pins():
+    unused_pins = [4, 5, 12, 13, 14, 15, 25, 26, 32, 33]
+    for pin_num in unused_pins:
+        pin = machine.Pin(pin_num)
+        pin.init(mode=machine.Pin.IN)
 
-
-# Main loop
 def main():
-    # Disable unused peripherals and pins to reduce power consumption
-    machine.Pin(2, machine.Pin.IN)  # GPIO2 is disabled
-    machine.Pin(4, machine.Pin.IN)  # GPIO4 is disabled
-    machine.Pin(5, machine.Pin.IN)  # GPIO5 is disabled
-    machine.Pin(12, machine.Pin.IN) # GPIO12 is disabled
-    machine.Pin(13, machine.Pin.IN) # GPIO13 is disabled
-    machine.Pin(14, machine.Pin.IN) # GPIO14 is disabled
-    machine.Pin(15, machine.Pin.IN) # GPIO15 is disabled
-    machine.Pin(25, machine.Pin.IN) # GPIO25 is disabled
-    machine.Pin(26, machine.Pin.IN) # GPIO26 is disabled
-    #machine.Pin(27, machine.Pin.IN) # GPIO27 is disabled
-    machine.Pin(32, machine.Pin.IN) # GPIO32 is disabled
-    machine.Pin(33, machine.Pin.IN) # GPIO33 is disabled
-    #machine.lightsleep()  # Start in light sleep mode
-    print('hi')
-  
-    while True:
-        # Configure button pin with pull-up and wakeup capability
-        button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-        esp32.wake_on_ext0(pin=button, level=esp32.WAKEUP_ALL_LOW)
+      # Disable unused pins
+    disable_unused_pins()
+    # Configure pins
+    button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
+    esp32.wake_on_ext0(pin=button, level=esp32.WAKEUP_ALL_LOW)
+    print('hi - waiting for bucket tip')
 
+    while True:
         # Enter light sleep
         print("Entering light sleep...")
         time.sleep_ms(1500)
@@ -95,18 +79,17 @@ def main():
 
         # Code executed after waking from light sleep (button press)
         print("Woke from light sleep! Button pressed.")
-        button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
         button_pressed_time = 0
-     
+
         while True:
-            if button.value() == 0:  # Button is pressed
+            if button.value() == 0:  # Button pressed
                 button_pressed_time += 1
-                print (button_pressed_time)
+                print(button_pressed_time)
             else:  # Button released
-                if 5 <= button_pressed_time < 2000:
+                if 2 <= button_pressed_time < 2000:
                     time.sleep_ms(200)  # Debounce the button
                     connect_wifi()
-                    if make_request():
+                    if make_request_button():
                         time.sleep_ms(200)
                         network.WLAN(network.STA_IF).active(False)  # Disable WiFi
                         print("WiFi Disabled going back to sleep")
