@@ -1,0 +1,99 @@
+import network
+import urequests
+import time
+import machine
+import onewire, ds18x20
+import json
+
+# Function to connect to WiFi
+def connect_wifi(ssid, password):
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    if not wlan.isconnected():
+        print("Connecting to WiFi...")
+        wlan.connect(ssid, password)
+        while not wlan.isconnected():
+            pass
+    print("Connected to WiFi:", ssid)
+
+# Function to make PUT request
+def make_put_request(url, data):
+    try:
+        headers = {'Content-Type': 'application/json'}
+        response = urequests.put(url, data=json.dumps(data), headers=headers)
+        response.close()
+        return response.status_code
+    except Exception as e:
+        print("Exception occurred during PUT request:", e)
+        return None
+
+# Function to read temperature from DS18B20 sensor
+def read_temperature():
+    try:
+        ow = onewire.OneWire(machine.Pin(5))  # Pin 5 is used for DS18B20 data line
+        ds = ds18x20.DS18X20(ow)
+        roms = ds.scan()
+        ds.convert_temp()
+        time.sleep_ms(750)
+        temperature = ds.read_temp(roms[0])
+        return temperature
+    except Exception as e:
+        print("Exception occurred while reading temperature:", e)
+        return None
+
+# Function to read UV intensity from GUVA-S12SD sensor connected to GPIO 9 and map it to a scale of 1 to 10
+def read_uv_intensity():
+    try:
+        adc = machine.ADC(machine.Pin(9))  # Configure ADC to read from GPIO 9
+        uv_intensity = adc.read()           # Read analog value from ADC
+        # Map the raw analog reading to a scale of 1 to 10
+        uv_scale = (uv_intensity / 4095) * 10  # Assuming ADC resolution is 12-bit (4096 levels)
+        return int(uv_scale)  # Return the scaled value as an integer
+    except Exception as e:
+        print("Exception occurred while reading UV intensity:", e)
+        return None
+
+# Main loop
+def main_loop():
+    while True:
+        try:
+            connect_wifi("Severn", "0294498370")
+            temperature = read_temperature()
+            print (temperature)
+            
+            uv_intensity = read_uv_intensity()
+            
+            print (uv_intensity)
+           
+           
+            
+            if temperature is not None:
+                temperature_data = {"sensor_value": temperature}
+                temp_status_code = make_put_request("http://severn-data.loddington.com:5000/sensors/sun_temp", temperature_data)
+                if temp_status_code == 200:
+                    print("PUT request for temperature sensor successful")
+                else:
+                    print("PUT request for temperature sensor failed with status code:", temp_status_code)
+            else:
+                print("Failed to read temperature")
+
+            if uv_intensity is not None:
+                # Map UV intensity to a scale of 1 to 10
+                uv_data = {"sensor_value": uv_intensity}
+                uv_status_code = make_put_request("http://severn-data.loddington.com:5000/sensors/UV", uv_data)
+                if uv_status_code == 200:
+                    print("PUT request for UV sensor successful")
+                else:
+                    print("PUT request for UV sensor failed with status code:", uv_status_code)
+            else:
+                print("Failed to read UV intensity")
+        except Exception as e:
+            print("Exception occurred:", e)
+        
+        print("Entering deep sleep for 60 seconds...")
+        time.sleep(3)
+        machine.deepsleep(360000)  # Sleep for 60 seconds
+
+# Run the main loop
+if __name__ == "__main__":
+    main_loop()
