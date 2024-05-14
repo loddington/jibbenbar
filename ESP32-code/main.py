@@ -1,107 +1,106 @@
+# Import the necessary modules
 import machine
 import network
-import time
 import urequests
+import time
 import esp32
+import uasyncio as asyncio
 
-# Define GPIO pins
-BUTTON_PIN = 27
+machine.freq(80000000)
 
 # WiFi credentials
-WIFI_SSID = "Severn"
-WIFI_PASSWORD = "0294498370"
+WIFI_SSID = "XXXXXXX"
+WIFI_PASSWORD = "XXXXXXX"
+SERVER_URL = "http://lod-data.loddington.com:5000/sensors/bucket_tips_2/increment"
 
-# Server details
-SERVER_IP = "Server address of name"
-SERVER_PORT = 5000
-ENDPOINT_BUTTON = "/sensors/bucket_tips/increment"
+BUTTON_PIN = 27  # GPIO 14
+RESTART_INTERVAL = 86400
+MIN_PRESS_DURATION = 5  # Minimum press duration in milliseconds
+MAX_PRESS_DURATION = 5000
 
-# Retry delay
-RETRY_DELAY = 5
+# Configure and start the watchdog timer (timeout: 60 seconds)
+wdt = machine.WDT(timeout=60000)
 
-def connect_wifi():
-  wlan = network.WLAN(network.STA_IF)
-  wlan.active(True)
-  start_time = time.ticks_ms()  # Record start time
-  while time.ticks_diff(time.ticks_ms(), start_time) < 30000:  # Timeout after 30 seconds
-    if wlan.isconnected():
-      print("WiFi Connected:", wlan.ifconfig())
-      return
-    if not wlan.isconnected():
-      print("Connecting to WiFi...")
-      try:
-        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
-        time.sleep(1)
-      except OSError as e:
-        if e.args[0] == 118:  # Error code 118 corresponds to "Wifi Internal Error"
-          print("Error: Wifi Internal Error. Restarting the script...")
-          machine.reset()
-        else:
-          print("WiFi connection failed:", e)
-          return
-  print("WiFi connection timed out. Restarting the script...")
-  machine.reset()
-
-def make_request_button():
-  global request_in_progress  # Flag to avoid multiple requests during button press
-  try:
-    if not request_in_progress:
-      request_in_progress = True
-      response = urequests.put("http://{}:{}/{}".format(SERVER_IP, SERVER_PORT, ENDPOINT_BUTTON))
-      if response.status_code == 200:
-        print("Request Successful")
-      else:
-        print("Request Failed with status code:", response.status_code)
-  except OSError as e:
-    print("Exception occurred during request:", e)
-    print("Restarting the script...")
+# Restarts the ESP32 
+def restart():
+    print("Restarting...")
     machine.reset()
-  finally:
-    request_in_progress = False  # Reset flag regardless of success or failure
 
-def disable_unused_pins():
-  unused_pins = [4, 5, 12, 13, 14, 15, 25, 26, 32, 33]
-  for pin_num in unused_pins:
-    pin = machine.Pin(pin_num)
-    pin.init(mode=machine.Pin.IN)
-	
-	
-	def main():
-  # Disable unused pins
-  disable_unused_pins()
-  # Configure pins
-  button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
-  esp32.wake_on_ext0(pin=button, level=esp32.WAKEUP_ALL_LOW)
-  print('hi - waiting for bucket tip')
+# Connect to WiFi asynchronously
+async def connect_wifi():
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    if not wlan.isconnected():
+        print("Connecting to WiFi...")
+        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+        while not wlan.isconnected():
+            await asyncio.sleep_ms(100)
+    print("Connected to WiFi:", wlan.ifconfig())
+    # Feed the watchdog timer after successful WiFi connection
+    wdt.feed()
 
-  request_in_progress = False  # Flag to indicate ongoing request process
+# Send PUT request asynchronously with retry mechanism and increased timeout
+async def send_put_request():
+    max_retries = 2
+    retry_delay = 1  # seconds
+    put_timeout = 5  # seconds
 
-  while True:
-    # Enter light sleep
-    print("Entering light sleep...")
-    time.sleep_ms(1500)
-    machine.lightsleep()
+    for retry_count in range(max_retries):
+        try:
+            response = urequests.put(SERVER_URL, timeout=put_timeout)
+            if response.status_code == 200:
+                print("PUT request sent successfully")
+                return  # Exit the function if request succeeds
+            else:
+                print("Error sending PUT request. Status code:", response.status_code)
+                response.close()
+        except Exception as e:
+            print("Exception occurred while sending PUT request:", e)
 
-    # Code executed after waking from light sleep (button press)
-    print("Woke from light sleep! Button pressed.")
-    button_pressed_time = 0
+        # Retry after delay
+        print("Retrying PUT request in {} seconds (retry {}/{})".format(retry_delay, retry_count + 1, max_retries))
+        await asyncio.sleep(retry_delay)
+
+    print("Max retries reached, unable to send PUT request")
+
+# Main function
+async def main():
+    await connect_wifi()
+
+    button = machine.Pin(BUTTON_PIN, machine.Pin.IN, machine.Pin.PULL_UP)
+
+    # Configure wake-up on button press
+    esp32.wake_on_ext0(pin=button, level=esp32.WAKEUP_ALL_LOW)
 
     while True:
-      if button.value() == 0:  # Button pressed
-        button_pressed_time += 1
-        print(button_pressed_time)
-      else:  # Button released
-        if 2 <= button_pressed_time < 2000:
-          time.sleep_ms(200)  # Debounce the button
-          # Check flag before connection and request
-          if not request_in_progress:
-            connect_wifi()
-            make_request_button()
-          else:
-            print("Request already in progress. Waiting...")
-            time.sleep_ms(1000)  # Short delay if request in progress
-          if request_in_progress:  # Disable WiFi only if request successful
-            network.WLAN(network.STA_IF).active(False)  # Disable WiFi
-            print("WiFi Disabled going back to sleep")
-        time.sleep_ms(500)  # Short delay before checking button again
-        break  # Exit inner loop after button released
+        print("Going into light sleep...")
+        await asyncio.sleep(1)
+        machine.lightsleep()
+        print("Woke up from light sleep")
+
+        # Check if woken up by button press
+        if machine.wake_reason() == machine.PIN_WAKE:
+            # Measure button press duration
+            start_time = time.ticks_ms()
+            while button.value() == 0:
+                pass
+            end_time = time.ticks_ms()
+            press_duration = end_time - start_time
+
+            print("Button press duration:", press_duration, "ms")
+
+            if press_duration >= MIN_PRESS_DURATION:
+                print("Woken up by button press")
+                await send_put_request()
+
+        # Feed the watchdog timer after waking up
+        wdt.feed()
+
+        await asyncio.sleep(0.15)
+
+# Main program
+try:
+    asyncio.run(main())
+except Exception as e:
+    print("Exception occurred:", e)
+    restart()
