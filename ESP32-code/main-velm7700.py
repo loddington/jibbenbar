@@ -6,6 +6,8 @@ import urequests
 import time
 import json
 
+# VEML7700 library from here https://github.com/palouf34/veml7700
+
 # Set CPU frequency to 80 MHz
 machine.freq(80000000)
 
