@@ -56,7 +56,7 @@ def read_light_intensity():
 def main_loop():
     while True:
         try:
-            connect_wifi("Severn", "0294498370")
+            connect_wifi("XXXXXXX", "XXXXXXXXX")
             light_intensity = read_light_intensity()
             print("Light Intensity:", light_intensity)
             
