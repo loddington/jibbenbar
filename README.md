@@ -86,6 +86,7 @@ mkdir /home/jibbenbar/weather_logs/
 jibbenbar/jibbenbar-python
 python3 -m venv /home/jibbenbar/jibbenbar-python/
 /home/jibbenbar/jibbenbar-python/bin/pip3 install RPi.bme280 requests Adafruit_CircuitPython_AHTx0  adafruit-circuitpython-bme680 mariadb  adafruit-circuitpython-ltr390 rpi-lgpio lgpio
+/home/jibbenbar/jibbenbar-python/bin/pip3 install gpiozero pigpio
 
 
 cd /home/jibbenbar/
