@@ -103,4 +103,5 @@ def increment_sensor_value(sensor_id):
 
 
 if __name__ == '__main__':
-   app.run(debug=False, port=5000)
+   # app.run(debug=False, port=5000)
+   app.run(host='0.0.0.0',debug=False, port=5000) # Allow connections on external interfaces - Handy when using ESP32
