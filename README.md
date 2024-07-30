@@ -70,8 +70,9 @@ CREATE TABLE dailydata (
  );
 
 
- apt install mlocate i2c-tools apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev fswebcam openvpn mariadb-server mycli mariadb-backup
+ apt install mlocate i2c-tools apache2 php php-json php-cli libnet-address-ip-local-perl php-mysql python3-smbus2 python3-gpiozero python3-flask-api libmariadbd-dev fswebcam openvpn mariadb-server mycli mariadb-backup rsyslog
  sudo systemctl enable --now apache2
+  sudo systemctl enable --now rsyslog
  service mariadb start
  
  
