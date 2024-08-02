@@ -2,66 +2,59 @@ import RPi.GPIO as GPIO
 import time
 import requests
 
-# After getting lots of weird false posiitves I moved to checking how long the button / reed switch was activated for. Problem solved!
-
-# I am now using a home made tipping bucket sensor rather than the Maplin. https://www.printables.com/model/130513-rain-gauge - It is larger and more robust unit and has a 0.2mm tip rthan than the 0.2794mm of the Maplin.
-
-
 # API URL
-api_url = "http://localhost:5001/sensors/bucket_tips_2/increment"
+api_url = "http://127.0.0.1:5000/sensors/bucket_tips/increment"
 
-# You can see what is in the Data logger by using this command:
-# curl  -H "Content-Type: application/json"  -X GET http://localhost:5000/sensors
-
+# Set the GPIO pin for the button
+button_pin = 26
 
 # Set the GPIO mode
 GPIO.setmode(GPIO.BCM)
 
-# Set the GPIO pin for the button
-button_pin = 13
-
-# Setup the button pin as input with pull-up resistor
 GPIO.setup(button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# Initialize variables for debounce
-button_pressed_time = None
-debounce_duration = 0.01  # 50 milliseconds
-max_duration = 3.0 #stuck bucket at half way
 
-# Function to handle button press
-def button_pressed_callback(channel):
-    global button_pressed_time
-    if GPIO.input(channel) == GPIO.LOW:
-        if button_pressed_time is None:
-            button_pressed_time = time.time()  # Record the time when button is pressed
+# Variables to track time
+magnet_detected = False
+start_time = 0
+end_time = 0
+
+
+def sensor_callback(channel):
+    global magnet_detected, start_time, end_time
+
+    if GPIO.input(button_pin) == GPIO.LOW:
+        if not magnet_detected:
+            magnet_detected = True
+            start_time = time.time()
+            print("Magnet not detected")
+
     else:
-        if button_pressed_time is not None:
-            end_time = time.time()  # Record the time when button is released
-            duration = end_time - button_pressed_time
-            if debounce_duration <= duration < max_duration:  # Check if debounce duration has passed but less than max_duration
-                print("Button pressed for {:.2f} seconds".format(duration))
-                rain_gauge_tip(channel)
-            button_pressed_time = None  # Reset button_pressed_time
+        if magnet_detected:
+            magnet_detected = False
+            end_time = time.time()
+            duration = end_time - start_time
+            print(f"Magnet detected, Duration: {duration:.2f} seconds")
+            rain_gauge_tip()
 
-# Add event listener for button press
-GPIO.add_event_detect(button_pin, GPIO.BOTH, callback=button_pressed_callback)
+# Add event detection on the hall sensor pin
+GPIO.add_event_detect(button_pin, GPIO.BOTH, callback=sensor_callback, bouncetime=10)
 
 
 # Function to handle rain gauge tip events
-def rain_gauge_tip(channel):
+def rain_gauge_tip():
     try:
         response = requests.put(api_url)
 
         if response.status_code == 200:
             sensor_data = response.json()
-            print("Sensor value incremented successfully:", sensor_data['sensor'], time.ctime())
+            print("Sensor value incremented successfully:", sensor_data['sensor'                               ], time.ctime())
         else:
             print("Error:", response.text)
-            sensor_data = response.json() # a quick retry on error
+            sensor_data = response.json()  # a quick retry on error
 
     except requests.exceptions.RequestException as e:
         print("Error calling API:", e)
-
 
 
 try:
@@ -69,18 +62,4 @@ try:
         time.sleep(0.1)  # Keep the script running
 
 except KeyboardInterrupt:
-    GPIO.cleanup()  # Clean up GPIO on Ctrl+C exit
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    pass 
