@@ -37,7 +37,7 @@ def sensor_callback(channel):
             print(f"Magnet detected, Duration: {duration:.2f} seconds")
             rain_gauge_tip()
 
-# Add event detection on the hall sensor pin
+# Add event detection on the hall or reed sensor pin
 GPIO.add_event_detect(button_pin, GPIO.BOTH, callback=sensor_callback, bouncetime=10)
 
 
@@ -48,7 +48,7 @@ def rain_gauge_tip():
 
         if response.status_code == 200:
             sensor_data = response.json()
-            print("Sensor value incremented successfully:", sensor_data['sensor'                               ], time.ctime())
+            print("Sensor value incremented successfully:", sensor_data['sensor'], time.ctime())
         else:
             print("Error:", response.text)
             sensor_data = response.json()  # a quick retry on error
