@@ -48,6 +48,16 @@ console.log("Page refreshed!");
         });
     </script>
 
+    <script>
+        $(document).ready(function() {
+            $.getJSON('mooncalc.php', function(data) {
+                $.each(data, function(columnName, columnValue) {
+                    $('#' + columnName).text(columnValue);
+                });
+            });
+        });
+    </script>
+
 
     <div class="dashboard-container">
 
@@ -75,8 +85,9 @@ console.log("Page refreshed!");
 
             <!-- Calculated Data Section -->
             <div class="calculated-data">
-                 <p>Rain (last 10 mins): <span id="rain_count"></span>mm</p>
+
                  <p>Rain Today:  <span id="sum_rain_today"></span>mm</p>
+                 <p>Rain (last 10 mins): <span id="rain_count"></span>mm</p>
                  <p>Rain Yesterday:  <span id="rain_yesterday"></span>mm</p>
                  <p>Rain this Month: <span id="sum_rain_month"></span>mm</p>
                  <p>Rain last Month: <span id="sum_rain_last_month"></span>mm</p>
@@ -100,7 +111,9 @@ console.log("Page refreshed!");
                 <p>Solar Noon Zenith <span id="zenith"></span> </p>
                 <!-- <p>Dark - Stars visable  <span id="astronomical_twilight_end"></span> </p> -->
 
-
+                <p>Moon: <span id="fraction"></span> <span id="phase"></span>
+                <p>Moonrise: <span id="moonrise"></span></p>
+                <p>Moonset: <span id="moonset"></span></p>
 
             </div>
         </div>
