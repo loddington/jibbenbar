@@ -4,10 +4,10 @@ After=multi-user.target
 
 [Service]
 User=root
-WorkingDirectory=/var/www/jibbenbar
+WorkingDirectory=/home/jibbenbar/jibbenbar
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/python3 rainfall.py
+ExecStart=/home/jibbenbar/jibbenbar-python/bin/python rainfall.py
 StandardOutput=append:/var/log/rainfall.log
 StandardError=append:/var/log/rainfall.log
 SyslogIdentifier=rainfall
