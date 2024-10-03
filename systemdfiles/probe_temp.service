@@ -4,10 +4,10 @@ After=multi-user.target
 
 [Service]
 User=root
-WorkingDirectory=/var/www/jibbenbar
+WorkingDirectory=/home/jibbenbar/jibbenbar
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/python3 probe_temp.py
+ExecStart=/home/jibbenbar/jibbenbar-python/bin/python probe_temp.py
 SyslogIdentifier=probe_temp
 
 [Install]
