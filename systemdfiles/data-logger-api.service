@@ -4,10 +4,10 @@ After=multi-user.target
 
 [Service]
 User=root
-WorkingDirectory=/var/www/jibbenbar
+WorkingDirectory=/home/jibbenbar/jibbenbar
 Restart=on-failure
 RestartSec=5s
-ExecStart=/usr/bin/python3 data-logger-api.py
+ExecStart=/home/jibbenbar/jibbenbar-python/bin/python data-logger-api.py
 #StandardOutput=append:/var/log/flask-data-logger-api-server.log
 #StandardError=append:/var/log/flask-data-logger-api-server.log
 SyslogIdentifier=data-logger-api
